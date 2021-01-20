@@ -2,26 +2,14 @@
  * @description: 定义常用的校验方法
  * @author chen
  * @update 2021-01-20 15:50:57
+ * @remark 校验方式参考 https://www.npmjs.com/package/validator
 */
 
 import { Rule, LinValidator } from '../lib/lin-validator'
 
-/**
- * @author chen
- * @params { key, rules => [type, msg, rule] || [ [type, msg, rule], ... ] }
- * @description: 校验一个参数
- * @update 2021-01-20 15:52:12
-*/
-
-export class ValidatorParameter extends LinValidator {
-  constructor(rules: any) {
+class ValidatorParam extends LinValidator {
+  constructor() {
     super()
-    if (global._.isPlainObject(rules)) {
-      this.setRule(rules)
-    } else {
-      throw new global.ExceptionHttp(global.Message.rules)
-    }
-
   }
 
   protected setRule(rule: any) {
@@ -40,8 +28,26 @@ export class ValidatorParameter extends LinValidator {
       )
     }
     this[rule.key] = ruleList
-
   }
+}
+
+/**
+ * @author chen
+ * @params { key, rules => [type, msg, rule] || [ [type, msg, rule], ... ] }
+ * @description: 校验一个参数
+ * @update 2021-01-20 15:52:12
+*/
+
+export class ValidatorParameter extends ValidatorParam {
+  constructor(rules: any) {
+    super()
+    if (global._.isPlainObject(rules)) {
+      this.setRule(rules)
+    } else {
+      throw new global.ExceptionHttp(global.Message.rules)
+    }
+  }
+
 }
 
 /**
@@ -51,9 +57,9 @@ export class ValidatorParameter extends LinValidator {
  * @update 2021-01-20 15:53:45
 */
 
-export class ValidatorParameters extends ValidatorParameter {
+export class ValidatorParameters extends ValidatorParam {
   constructor(rules: any) {
-    super(rules)
+    super()
     if (global._.isArray(rules)) {
       for (let i = 0, len = rules.length; i < len; i++) {
         let rule = rules[i]
@@ -64,18 +70,4 @@ export class ValidatorParameters extends ValidatorParameter {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

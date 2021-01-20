@@ -13,10 +13,13 @@ export async function myTest(ctx, next) {
   // isFloat
   // isBoolean
   // isLength
-  const v = await new ValidatorParameter({
-    key: 'a',
-    rules: ['isLength', '邮箱格式不对']
-  }).validate(ctx)
+  let aa =
+    {
+      key: 'a',
+      rules: ['isInt', '邮箱格式不对']
+    }
+  
+  const v = await new ValidatorParameter(aa).validate(ctx)
 
   console.log(v.data);
   throw new global.Success()
