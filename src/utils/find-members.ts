@@ -11,7 +11,7 @@ interface MembersOptions {
 }
 
 export function findMembers(instance: any, options: MembersOptions) {
-  function _find(instance) {
+  function _find(instance: any): any {
     if (instance.__proto__ === null) return []
     // 获取自身属性
     let names = Reflect.ownKeys(instance)
@@ -21,7 +21,7 @@ export function findMembers(instance: any, options: MembersOptions) {
   }
 
   // 过滤条件
-  function _shouldKeep(value) {
+  function _shouldKeep(value: any) {
     if (options.filter)
       if (options.filter(value)) return true
     if (options.prefix)

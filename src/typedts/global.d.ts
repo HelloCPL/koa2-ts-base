@@ -4,6 +4,12 @@
  * @update 2021-01-19 15:54:01
 */
 
+interface ToolsOptions {
+  toPath: Function,
+  sureIsArray: Function,
+  [x: string]: any
+}
+
 interface DatabaseOption {
   NAME: string,
   USER: string,
@@ -15,7 +21,7 @@ interface DatabaseOption {
 
 interface SecurityOption {
   SECRET_KEY: string,
-  expiresIn: number
+  EXPIRES_IN: number
 }
 
 interface WXOption {
@@ -29,6 +35,7 @@ interface ConfigOption {
   PORT: number,
   HTTPS_PORT: number,
   DATABASE: DatabaseOption,
+  SECURITY_MANAGEMENT: SecurityOption,
   SECURITY_PC: SecurityOption,
   SECURITY_MOBILE: SecurityOption,
   SECURITY_WECHAT: SecurityOption,
@@ -61,13 +68,25 @@ interface CodeOption {
   [x: string]: any
 }
 
+interface ParamsMessageOption {
+  isLength: string,
+  isString: string,
+  isBoolean: string,
+  isInt: string,
+  isFloat: string,
+  isEmail: string,
+  [x:string]: any
+}
+
 // 声明命名空间 合并 Global 接口，用于扩展global对象
 declare namespace NodeJS {
   interface Global {
     _: any,
+    tools: ToolsOptions,
     CONFIG: ConfigOption,
     Message: MessageOption,
     Code: CodeOption,
+    ParamsMessage: ParamsMessageOption,
     ExceptionHttp: any,
     ExceptionParameter: any,
     ExceptionNotFound: any,
@@ -75,6 +94,6 @@ declare namespace NodeJS {
     ExceptionAuthFailed: any,
     Success: any
   }
-
 }
+
 

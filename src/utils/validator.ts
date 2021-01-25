@@ -14,19 +14,20 @@ class ValidatorParam extends LinValidator {
 
   protected setRule(rule: any) {
     if (!global._.isArray(rule.rules) || rule.rules.length === 0)
-      throw new global.ExceptionHttp(global.Message.rules)
+      throw new global.ExceptionHttp({message: global.Message.rules})
     let ruleList = []
     if (global._.isArray(rule.rules[0])) {
-      rule.rules.forEach(item => {
+      rule.rules.forEach((item: any) => {
         ruleList.push(
-          new Rule(item[0], item[1], item[2])
+          new Rule(item[0], item[1])
         )
       })
     } else {
       ruleList.push(
-        new Rule(rule.rules[0], rule.rules[1], rule.rules[2])
+        new Rule(rule.rules[0], rule.rules[1])
       )
     }
+    // @ts-ignore
     this[rule.key] = ruleList
   }
 }
@@ -44,10 +45,9 @@ export class ValidatorParameter extends ValidatorParam {
     if (global._.isPlainObject(rules)) {
       this.setRule(rules)
     } else {
-      throw new global.ExceptionHttp(global.Message.rules)
+      throw new global.ExceptionHttp({message: global.Message.rules})
     }
   }
-
 }
 
 /**
@@ -66,7 +66,7 @@ export class ValidatorParameters extends ValidatorParam {
         this.setRule(rule)
       }
     } else {
-      throw new global.ExceptionHttp(global.Message.rules)
+      throw new global.ExceptionHttp({message: global.Message.rules})
     }
   }
 }

@@ -4,9 +4,10 @@
  * @update 2021-01-19 16:37:52
 */
 
-import { ValidatorParameter } from '../validator'
+import Koa from 'koa'
+import { ValidatorParameter } from '../utils/validator'
 
-export async function myTest(ctx, next) {
+export async function myTest(ctx: Koa.Context, next: any) {
   // isOptional
   // isLength
   // isInt
@@ -14,11 +15,11 @@ export async function myTest(ctx, next) {
   // isBoolean
   // isLength
   let aa =
-    {
-      key: 'a',
-      rules: ['isInt', '邮箱格式不对']
-    }
-  
+  {
+    key: 'a',
+    rules: ['isInt', '邮箱格式不对']
+  }
+
   const v = await new ValidatorParameter(aa).validate(ctx)
 
   console.log(v.data);

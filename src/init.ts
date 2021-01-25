@@ -4,21 +4,23 @@
  * @update 2021-01-19 14:51:43
 */
 
+import Koa from 'koa'
 import path from 'path'
 import KoaCors from '@koa/cors'
 import KoaBody from 'koa-body'
 import KoaStatic from 'koa-static'
 import { catchError } from './middlewares/exception'
 import InitGlobal from './global'
-import InitLoadRoutes from './router'
-
+import { Route } from './middlewares/router/Route'
 
 class InitManager {
-  constructor(public app: any) {
+  constructor(public app: Koa) {
     this.init()
   }
 
   init() {
+
+
     // 处理跨域
     this.app.use(KoaCors())
     // 全局异常捕获
@@ -35,7 +37,8 @@ class InitManager {
     // 初始化全局方法或变量
     InitGlobal.init()
     // 初始化路由
-    InitLoadRoutes.init(this.app)
+    const router = new Route(this.app)
+    router.init()
   }
 
   // 初始化静态资源

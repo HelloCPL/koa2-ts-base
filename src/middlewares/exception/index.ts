@@ -4,9 +4,10 @@
  * @update 2021-01-20 10:22:18
 */
 
-import { ExceptionHttp } from '../utils/http-exception'
+import Koa from 'koa'
+import { ExceptionHttp } from '../../utils/http-exception'
 
-export async function catchError(ctx, next) {
+export async function catchError(ctx: Koa.Context, next: any) {
   try {
     await next()
   } catch (error) {
