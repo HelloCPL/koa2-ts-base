@@ -7,6 +7,10 @@
 interface ToolsOptions {
   toPath: Function,
   sureIsArray: Function,
+  getTerminal: Function,
+  getUserAgent: Function,
+  toCamelCase: Function,
+  isObject: Function,
   [x: string]: any
 }
 
@@ -21,7 +25,8 @@ interface DatabaseOption {
 
 interface SecurityOption {
   SECRET_KEY: string,
-  EXPIRES_IN: number
+  EXPIRES_IN: number,
+  DELAY: number
 }
 
 interface WXOption {
@@ -34,6 +39,9 @@ interface ConfigOption {
   ENV: string,
   PORT: number,
   HTTPS_PORT: number,
+  ALLOW_MULTIPLE: boolean,
+  CRYPTOJS_KEY: string,
+  CRYPTOJS_IV: string,
   DATABASE: DatabaseOption,
   SECURITY_MANAGEMENT: SecurityOption,
   SECURITY_PC: SecurityOption,
@@ -82,6 +90,7 @@ interface ParamsMessageOption {
 declare namespace NodeJS {
   interface Global {
     _: any,
+    dayjs: any,
     tools: ToolsOptions,
     CONFIG: ConfigOption,
     Message: MessageOption,
@@ -95,5 +104,3 @@ declare namespace NodeJS {
     Success: any
   }
 }
-
-

@@ -1,21 +1,14 @@
 /**
- * @description 路由相关方法
+ * @description 路由注册装饰器 方法集合
+ * 装饰器权重 Required > Get Post Put Delete > Convert
  * @author chen
  * @update 2021-01-22 14:48:09
 */
 
 import Koa from 'koa'
-import { symbolRoutePrefix, Route, RouterMap } from './Route';
+import { symbolRoutePrefix, Route } from './Route';
 import { ValidatorParameters } from '../../utils/validator'
 import { LinValidator } from '../../lib/lin-validator'
-
-// 请求参数约束接口
-interface RequiredMap {
-  method: string,
-  path: string,
-  unless?: boolean,
-  terminals?: string[]
-}
 
 /**
  * @author chen
@@ -31,7 +24,7 @@ export function Prefix(prefix: string) {
 
 /**
  * @author chen
- * @params path 路由路径 unless 是否拦截 terminals 支持的终端，包括 ['managemebt','pc','wechat','mobile', 'app']
+ * @params path 路由路径 unless 是否拦截 terminals 支持的终端，包括 ['management','pc','wechat','mobile', 'app']
  * @description 处理 get 请求 方法装饰器
  * @update 2021-01-22 17:20:23
 */
@@ -49,14 +42,14 @@ export function Get(path: string, unless?: boolean, terminals?: string[]) {
 
 /**
  * @author chen
- * @params path 路由路径
+ * @params path 路由路径 unless 是否拦截 terminals 支持的终端，包括 ['management','pc','wechat','mobile', 'app']
  * @description 处理 post 请求 方法装饰器
  * @update 2021-01-22 17:20:23
 */
 export function Post(path: string, unless?: boolean, terminals?: string[]) {
   return (target: any, name: string, descriptor: PropertyDescriptor) => {
     let config = {
-      method: 'get',
+      method: 'post',
       path,
       unless,
       terminals
@@ -67,14 +60,14 @@ export function Post(path: string, unless?: boolean, terminals?: string[]) {
 
 /**
  * @author chen
- * @params path 路由路径
+ * @params path 路由路径 unless 是否拦截 terminals 支持的终端，包括 ['management','pc','wechat','mobile', 'app']
  * @description 处理 put 请求 方法装饰器
  * @update 2021-01-22 17:20:23
 */
 export function Put(path: string, unless?: boolean, terminals?: string[]) {
   return (target: any, name: string, descriptor: PropertyDescriptor) => {
     let config = {
-      method: 'get',
+      method: 'put',
       path,
       unless,
       terminals
@@ -85,14 +78,14 @@ export function Put(path: string, unless?: boolean, terminals?: string[]) {
 
 /**
  * @author chen
- * @params path 路由路径
+ * @params path 路由路径 unless 是否拦截 terminals 支持的终端，包括 ['management','pc','wechat','mobile', 'app']
  * @description 处理 put 请求 方法装饰器
  * @update 2021-01-22 17:20:23
 */
 export function Delete(path: string, unless?: boolean, terminals?: string[]) {
   return (target: any, name: string, descriptor: PropertyDescriptor) => {
     let config = {
-      method: 'get',
+      method: 'delete',
       path,
       unless,
       terminals
@@ -112,11 +105,11 @@ export function Delete(path: string, unless?: boolean, terminals?: string[]) {
 export function Required(params: any[] = []) {
   return function (target: any, name: string, descriptor: PropertyDescriptor) {
     target[name] = global.tools.sureIsArray(target[name])
-    target[name].splice(target[name].length - 1, 0, middleware)
+    target[name].splice(0, 0, middleware)
     return descriptor
     // 处理参数中间件
     async function middleware(ctx: Koa.Context, next: any) {
-      let newParams = ValidatorParams(params)
+      let newParams = ValidatorRequiredParams(params)
       await new ValidatorParameters(newParams).validate(ctx)
       await next()
     }
@@ -145,7 +138,9 @@ export function Convert(middleware: any) {
 /**
  * 统一路由请求处理方法
 */
-function router(target: any, name: string, descriptor: PropertyDescriptor, config: RequiredMap) {
+function router(target: any, name: string, descriptor: PropertyDescriptor, config: ObjectRequired) {
+  if (!(global._.isArray(config.terminals) && config.terminals?.length))
+    config.terminals = ['management', 'pc', 'wechat', 'mobile', 'app']
   Route.__DecoratedRouters.set({
     target: target,
     path: config.path,
@@ -154,7 +149,9 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
     terminals: config.terminals
   }, target[name])
   target[name] = global.tools.sureIsArray(target[name])
-  target[name].splice(target[name].length - 1, 0, middleware)
+  // target[name].splice(target[name].length - 1, 0, middleware)
+  let i = target[name].length - 1 >= 1 ? 1 : 0
+  target[name].splice(i, 0, middleware)
   return descriptor
   async function middleware(ctx: Koa.Context, next: any) {
     const v = await new LinValidator().validate(ctx)
@@ -166,7 +163,7 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
 /**
  * 处理校验参数
 */
-function ValidatorParams(params: any[]) {
+function ValidatorRequiredParams(params: any[]) {
   return params.map((item: string) => {
     let i = item.indexOf('&'),
       key: string,

@@ -7,18 +7,15 @@
 import Koa from 'koa'
 import compose from 'koa-compose'
 
-interface DataOption {
-  [x: string]: any
-}
-
 declare module 'koa' {
   interface Context {
-    state: any,
+    state: any, // 回调状态码
     data: {
-      query: DataOption,
-      body: DataOption,
-      path: DataOption,
-      header: DataOption,
-    } | any
+      query: ObjectAny,
+      body: ObjectAny,
+      path: ObjectAny,
+      header: ObjectAny,
+    } | any, // 访问参数
+    terminal: any, // 访问终端
   }
 }

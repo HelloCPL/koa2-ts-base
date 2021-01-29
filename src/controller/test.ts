@@ -19,9 +19,6 @@ export async function myTest(ctx: Koa.Context, next: any) {
     key: 'a',
     rules: ['isInt', '邮箱格式不对']
   }
-
   const v = await new ValidatorParameter(aa).validate(ctx)
-
-  console.log(v.data);
   throw new global.Success()
 }

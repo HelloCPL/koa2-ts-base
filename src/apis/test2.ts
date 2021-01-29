@@ -6,45 +6,17 @@
 
 import Koa from 'koa'
 import { Prefix, Get, Post, Required, Convert } from '../middlewares/router'
-import { symbolRoutePrefix } from '../middlewares/router/Route'
-
-// 测试中间件
-// async function testFun(ctx: Koa.Context, next: any) {
-//   console.log('convert function');
-//   await next()
-// }
 
 @Prefix('/myprefix')
-class TestController {
+export default class TestController {
 
-  @Post('/mytest/post')
-  @Required(['name&isBase64'])
+  // @Post('/mytest/post', true)
+  // @Required(['name&isBase64'])
+  // async doTestPost(ctx: Koa.Context, next: any): Promise<void> {
+  //   console.log('post');
+  //   throw new global.Success({
+  //     data: 'post 返回'
+  //   })
+  // }
 
-  async doTestPost(ctx: Koa.Context, next: any): Promise<void> {
-    console.log('post');
-    console.log(ctx);
-    throw new global.Success({
-      data: 'post 返回'
-    })
-  }
 }
-
-export default TestController
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

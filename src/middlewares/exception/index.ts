@@ -5,15 +5,17 @@
 */
 
 import Koa from 'koa'
-import { ExceptionHttp } from '../../utils/http-exception'
+import { ExceptionHttp, Success } from '../../utils/http-exception'
 
 export async function catchError(ctx: Koa.Context, next: any) {
   try {
     await next()
   } catch (error) {
     const isExceptionHttp = error instanceof ExceptionHttp
-    const isDev = global.CONFIG.ENV === 'dev'
-    if (isDev && !isExceptionHttp) throw error
+    // const isDev = global.CONFIG.ENV === 'dev'
+    // if (isDev && !isExceptionHttp) throw error
+    throwError(error, isExceptionHttp)
+    ctx.status = global.Code.success
     if (isExceptionHttp) {
       ctx.body = {
         code: error.code,
@@ -22,7 +24,6 @@ export async function catchError(ctx: Koa.Context, next: any) {
         total: error.total
       }
     } else {
-      ctx.state = global.Code.error
       ctx.body = {
         code: global.Code.error,
         message: global.Code.error,
@@ -33,6 +34,23 @@ export async function catchError(ctx: Koa.Context, next: any) {
   }
 }
 
+function throwError(error: any, isExceptionHttp: boolean) {
+  let isSuccess = error instanceof Success
+  if (isSuccess) return
+  if (isExceptionHttp) {
+    console.log('');
+    console.log('---------------- 已知错误 start -----------------');
+    console.log(error);
+    console.log('---------------- 已知错误 start -----------------');
+    console.log('');
+  } else {
+    console.log('');
+    console.log('---------------- 未知错误 start -----------------');
+    console.log(error);
+    console.log('---------------- 未知错误 start -----------------');
+    console.log('');
+  }
+}
 
 
 
