@@ -11,6 +11,7 @@ interface ToolsOptions {
   getUserAgent: Function,
   toCamelCase: Function,
   isObject: Function,
+  getUuId: Function,
   [x: string]: any
 }
 
@@ -21,6 +22,12 @@ interface DatabaseOption {
   HOST: string,
   PORT: number,
   CONNECTION_LIMIT: number
+}
+
+interface RedisOption {
+  HOST: string,
+  PORT: number,
+  PASSWORD: string
 }
 
 interface SecurityOption {
@@ -43,6 +50,7 @@ interface ConfigOption {
   CRYPTOJS_KEY: string,
   CRYPTOJS_IV: string,
   DATABASE: DatabaseOption,
+  REDIS: RedisOption,
   SECURITY_MANAGEMENT: SecurityOption,
   SECURITY_PC: SecurityOption,
   SECURITY_MOBILE: SecurityOption,
@@ -73,6 +81,8 @@ interface CodeOption {
   forbidden: number,
   authFailed: number,
   success: number,
+  authRegister: number,
+  authRefresh: number,
   [x: string]: any
 }
 

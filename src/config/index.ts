@@ -25,6 +25,11 @@ const InitConfig = () => {
           PORT: 3306,
           CONNECTION_LIMIT: 500
         },
+        REDIS: { // 配置redis
+          HOST: '106.55.153.80',
+          PORT: 6379,
+          PASSWORD: '123456',
+        },
         SECURITY_MANAGEMENT: { // PC管理端 token 配置
           SECRET_KEY: 'MANAGEMENT_603PILOGING',
           EXPIRES_IN: 60 * 60 * 24, // 有效时间默认 24小时
@@ -77,6 +82,11 @@ const InitConfig = () => {
           HOST: '106.55.153.80',
           PORT: 3306,
           CONNECTION_LIMIT: 500
+        },
+        REDIS: { // 配置redis
+          HOST: '106.55.153.80',
+          PORT: 6379,
+          PASSWORD: '123456',
         },
         SECURITY_MANAGEMENT: { // PC管理端 token 配置
           SECRET_KEY: 'MANAGEMENT',

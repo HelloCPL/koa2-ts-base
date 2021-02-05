@@ -7,7 +7,7 @@
 import Koa from 'koa'
 import BasicAuth from 'basic-auth'
 import JWT from 'jsonwebtoken'
-import redisClient from '../redis'
+import { clientSet, clientGet, clientDel } from '../redis'
 
 /**
  * 不校验路由集合
@@ -22,30 +22,13 @@ export function TokenAuth(unlessList: string[]) {
   return async (ctx: Koa.Context, next: any) => {
     console.log('访问的接口是：' + ctx.request.url);
     console.log('');
-    if (isEscape(ctx.request.url)) {
+    if (isEscape(ctx.request.url))
       await next()
-    } else {
-      const token = BasicAuth(ctx.req)
-      const security = getSecurity(global.tools.getTerminal(ctx))
-      let tokenData: any
-      if (!token || !token.name)
-        throw new global.ExceptionForbidden({ message: 'token不存在' })
-      try {
-        tokenData = JWT.verify(token.name, security.SECRET_KEY)
-        // token与redis保存的token不一致
-        // token 携带的设备号与当前设备号不一致 
-
-
-        // let key = global.tools.getTerminal + '_' + decode.id
-        // let originToken = await redisClient.get(key)
-        // if (token.name !== originToken)
-        //   throw new global.ExceptionForbidden({ message: 'token不合法' })
-        ctx.user = tokenData
-      } catch (e) {
-        // 刷新时间未过期
-        // 刷新时间已过期
-        throw new global.ExceptionAuthFailed({ message: 'token已过期' })
-      }
+    else {
+      const tokenData: any = await TokenVerify(ctx)
+      if (tokenData.code !== global.Code.success)
+        throw new global.ExceptionHttp(tokenData)
+      ctx.user = tokenData.data
       await next()
     }
   }
@@ -53,36 +36,54 @@ export function TokenAuth(unlessList: string[]) {
 
 /**
  * 生成 token
- * token 过期自动清除 或退出登录后拦截旧 token
  * redis 保存 token 结构 { id, phone, delayTime, userAgent }
 */
-export function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
-  let terminal = global.tools.getTerminal(ctx)
-  const security = getSecurity(terminal)
+export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
+  const security = getSecurity(ctx)
   let currentDate: number = global.dayjs().unix()
-  user.delayTime = currentDate + security.EXPIRES_IN - + security.DELAY
+  user.delayTime = currentDate + security.EXPIRES_IN + security.DELAY
   let token = JWT.sign(user, security.SECRET_KEY, {
     expiresIn: security.EXPIRES_IN
   })
-  let key = user.id + '_' + terminal
-  if (global.CONFIG.ALLOW_MULTIPLE) key = key + user.userAgent
-  // saveRedisToken(key, token, user)
+  let key = getTokenKey(ctx, user)
+  await saveRedisToken(key, token, user)
   return token
 }
 
 /**
  * 校验 token 合法性
 */
-export function TokenVerify(ctx: Koa.Context) {
+export async function TokenVerify(ctx: Koa.Context) {
   const token = BasicAuth(ctx.req)
-  const security = getSecurity(global.tools.getTerminal(ctx))
-  if (!token || !token.name) return { message: 'token不存在', code: global.Code.forbidden }
+  const security = getSecurity(ctx)
+  if (!token || !token.name)
+    return { message: 'token不存在', code: global.Code.forbidden }
+  let tokenData
   try {
-    JWT.verify(token.name, security.SECRET_KEY)
+    tokenData = JWT.verify(token.name, security.SECRET_KEY)
+    let key = getTokenKey(ctx, tokenData)
+    let tokenRedis: any = await clientGet(key)
+    let tokenRedisInfo: any = await clientGet(tokenRedis)
+    // token无效
+    if (!tokenRedis || !tokenRedisInfo)
+      return { message: '请重新登录', code: global.Code.authRegister, token: token.name }
+    // token与redis保存不一致
+    if (tokenRedis !== token.name)
+      return { message: '您的账号已在其他设备登录！', code: global.Code.authFailed, token: token.name }
+    // token的登录设备信息与当前设备信息不一致
+    if (tokenRedisInfo.userAgent !== ctx.request.header['user-agent'])
+      return { message: '登录设备异常，为了安全请修改密码！', code: global.Code.authFailed, token: token.name }
   } catch (e) {
-    return { message: 'token已过期', code: global.Code.authFailed }
+    let tokenInfo: any = await clientGet(token.name)
+    let currentDateValue = global.dayjs().unix()
+    // token已过期，但可刷新
+    if (tokenInfo && currentDateValue < tokenInfo.delayTime)
+      return { message: 'token已过期，请重新刷新', code: global.Code.authRefresh, token: token.name }
+    // token已过期，不可刷新
+    return { message: '请重新登录', code: global.Code.authRegister, token: token.name }
   }
-  return { message: 'token有效', code: global.Code.success }
+  // token合法有效
+  return { message: '验证通过', code: global.Code.success, data: tokenData, token: token.name }
 }
 
 /**
@@ -104,26 +105,31 @@ function isEscape(path: string) {
 }
 
 /**
+ * 获取token保存的key 
+*/
+export function getTokenKey(ctx: Koa.Context, user: any) {
+  let key: any
+  let terminal = global.tools.getTerminal(ctx)
+  key = user.id + '_' + terminal
+  if (global.CONFIG.ALLOW_MULTIPLE) key = key + user.userAgent
+  return key
+}
+
+/**
  * 获取 SECURITY
 */
-function getSecurity(terminal: string) {
+function getSecurity(ctx: Koa.Context) {
+  let terminal = global.tools.getTerminal(ctx)
   return global.CONFIG['SECURITY_' + terminal]
 }
 
 /**
- * 保存 redis 的 token 记录
+ * 保存并更新 redis 的 token 记录
 */
 async function saveRedisToken(key: string, token: any, user: any) {
-  await clearRedisToken(key)
-  await redisClient.set(key, token)
-  await redisClient.set(token, JSON.stringify(user))
-}
-
-/**
- * 删除 redis 的 token 记录
-*/
-async function clearRedisToken(key: string) {
-  let originToken: any = await redisClient.get(key)
-  await redisClient.del(key)
-  await redisClient.del(originToken)
+  let tokenKey: any = await clientGet(key)
+  await clientDel(key)
+  await clientDel(tokenKey)
+  await clientSet(key, token)
+  await clientSet(token, user)
 }

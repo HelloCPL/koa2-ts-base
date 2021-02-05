@@ -6,8 +6,9 @@
 
 import Koa from 'koa'
 import { query, execTrans } from '../../db'
-import { TokenGernerate } from '../../middlewares/token-auth'
+import { TokenGernerate, TokenVerify, getTokenKey } from '../../middlewares/token-auth'
 import { encrypt, decrypt } from '../../utils/crypto'
+import { clientGet, clientDel } from '../../middlewares/redis'
 
 /**
  * 用户注册
@@ -43,7 +44,7 @@ export async function doUserLogin(ctx: Koa.Context, next?: any) {
       phone,
       userAgent: ctx.request.header['user-agent']
     }
-    let token = TokenGernerate(ctx, user)
+    let token = await TokenGernerate(ctx, user)
     throw new global.Success({
       data: token
     })
@@ -54,21 +55,55 @@ export async function doUserLogin(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 校验 token 合法性
+ * 刷新 token 
 */
-export async function doUserTokenValid(ctx: Koa.Context, next?: any) {
-
+export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
+  const tokenData: any = await TokenVerify(ctx)
+  if (tokenData.code === global.Code.success)
+    throw new global.Success({
+      data: tokenData.token
+    })
+  let tokenInfo: any = await clientGet(tokenData.token)
+  if (!tokenData.token || !tokenInfo)
+    throw new global.ExceptionHttp({
+      message: '请重新登录',
+      code: global.Code.authRegister,
+    })
+  let user = {
+    id: tokenInfo.id,
+    phone: tokenInfo.phone,
+    userAgent: ctx.request.header['user-agent']
+  }
+  let token = await TokenGernerate(ctx, user)
+  throw new global.Success({
+    data: token
+  })
 }
+
+/**
+ * 用户退出
+*/
+export async function doUserExit(ctx: Koa.Context, next?: any) {
+  let key = getTokenKey(ctx, ctx.user)
+  let tokenKey:any = await clientGet(key)
+  await clientDel(key)
+  await clientDel(tokenKey)
+  throw new global.Success({
+    data: '已退出'
+  })
+}
+
 
 /**
  * 获取用户信息
 */
+
 export async function getUserInfo(ctx: Koa.Context, next?: any) {
-  // let sql = `SELECT * FROM tb_admin WHERE id = ?`
-  // let res: any = await query(sql, ctx.user.id)
-  // res = res[0]
-  // delete res.password
+  let sql = `SELECT * FROM tb_admin WHERE id = ?`
+  let res: any = await query(sql, ctx.user.id)
+  res = res[0]
+  delete res.password
   throw new global.Success({
-    data: 123
+    data: res
   })
 }

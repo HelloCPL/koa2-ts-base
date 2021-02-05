@@ -6,7 +6,7 @@
 
 import Koa from 'koa'
 import { Prefix, Get, Post, Required, Convert } from '../../middlewares/router'
-import { doUserRegister, doUserLogin, doUserTokenValid, getUserInfo } from '../../controller/users'
+import { doUserRegister, doUserLogin, doUserTokenRefresh, getUserInfo, doUserExit } from '../../controller/users'
 import { doUserRegisterIsExist, doUserLoginIsNotExist } from '../../controller/users/convert'
 
 @Prefix('users')
@@ -28,10 +28,16 @@ export default class UsersController {
     await doUserLogin(ctx, next)
   }
 
-  // 校验 token 合法性
-  @Post('token/valid')
-  async doUserTokenValid(ctx: Koa.Context, next: any) {
-    await doUserTokenValid(ctx, next)
+  // 刷新 token 
+  @Get('token/refresh', true)
+  async doUserTokenRefresh(ctx: Koa.Context, next: any) {
+    await doUserTokenRefresh(ctx, next)
+  }
+
+  // 用户退出
+  @Get('exit')
+  async doUserExit(ctx: Koa.Context, next: any) {
+    await doUserExit(ctx, next)
   }
 
   // 获取本用户信息
@@ -39,6 +45,5 @@ export default class UsersController {
   async getUserInfo(ctx: Koa.Context, next: any) {
     await getUserInfo(ctx, next)
   }
-
-
+  
 }

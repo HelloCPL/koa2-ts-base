@@ -5,6 +5,7 @@
 */
 
 import Koa from 'koa'
+import {v1 as uuidv1} from 'uuid'
 
 /**
  * 返回格式后的路径
@@ -85,11 +86,17 @@ function isObject(obj: any) {
   return global._.isPlainObject(obj) || (typeof obj === 'object' && toString.call(obj) === '[object Object]')
 }
 
+// 生成唯一id标识
+function getUuId() {
+  return uuidv1()
+}
+
 export default {
   toPath,
   sureIsArray,
   getTerminal,
   getUserAgent,
   toCamelCase,
-  isObject
+  isObject,
+  getUuId
 }

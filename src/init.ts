@@ -7,12 +7,12 @@
 import Koa from 'koa'
 import path from 'path'
 import KoaCors from '@koa/cors'
-import KoaBody from 'koa-body'
+// import KoaBody from 'koa-body'
+import KoaBodyparser from 'koa-bodyparser'
 import KoaStatic from 'koa-static'
 import { catchError } from './middlewares/exception'
 import InitGlobal from './global'
 import { Route } from './middlewares/router/Route'
-
 class InitManager {
   constructor(public app: Koa) {
     this.init()
@@ -20,22 +20,22 @@ class InitManager {
 
   init() {
 
-
     // 处理跨域
     this.app.use(KoaCors())
-    // 全局异常捕获
-    this.app.use(catchError)
     // 处理body参数，并用于文件上传插件
-    this.app.use(KoaBody({
-      multipart: true,
-      formidable: {
-        maxFieldsSize: 20 * 1024 * 1024 // 设置上传文件大小最大限制，默认20M
-      }
-    }))
-    // 初始化静态资源
-    this.initStatic()
+    // this.app.use(KoaBody({
+    //   multipart: true,
+    //   formidable: {
+    //     maxFieldsSize: 20 * 1024 * 1024 // 设置上传文件大小最大限制，默认20M
+    //   }
+    // }))
+    this.app.use(KoaBodyparser())
     // 初始化全局方法或变量
     InitGlobal.init()
+    // 全局异常捕获
+    this.app.use(catchError)
+    // 初始化静态资源
+    this.initStatic()
     // 初始化路由
     const router = new Route(this.app)
     router.init()

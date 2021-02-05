@@ -28,7 +28,9 @@ export enum Code {
   notFound = 404,
   forbidden = 403,
   authFailed = 401,
-  success = 200
+  success = 200,
+  authRegister = 205, // 重新登录
+  authRefresh = 206, // token 失效需重新刷新
 }
 
 /**
