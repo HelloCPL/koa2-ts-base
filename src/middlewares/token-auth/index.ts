@@ -22,15 +22,14 @@ export function TokenAuth(unlessList: string[]) {
   return async (ctx: Koa.Context, next: any) => {
     console.log('访问的接口是：' + ctx.request.url);
     console.log('');
-    if (isEscape(ctx.request.url))
-      await next()
-    else {
+    let flag = await isEscape(ctx)
+    if (!flag) {
       const tokenData: any = await TokenVerify(ctx)
       if (tokenData.code !== global.Code.success)
         throw new global.ExceptionHttp(tokenData)
       ctx.user = tokenData.data
-      await next()
     }
+    await next()
   }
 }
 
@@ -39,11 +38,10 @@ export function TokenAuth(unlessList: string[]) {
  * redis 保存 token 结构 { id, phone, delayTime, userAgent }
 */
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
-  const security = getSecurity(ctx)
   let currentDate: number = global.dayjs().unix()
-  user.delayTime = currentDate + security.EXPIRES_IN + security.DELAY
-  let token = JWT.sign(user, security.SECRET_KEY, {
-    expiresIn: security.EXPIRES_IN
+  user.delayTime = currentDate + global.CONFIG.EXPIRES_IN + global.CONFIG.DELAY
+  let token = JWT.sign(user, global.CONFIG.SECRET_KEY, {
+    expiresIn: global.CONFIG.EXPIRES_IN
   })
   let key = getTokenKey(ctx, user)
   await saveRedisToken(key, token, user)
@@ -55,12 +53,11 @@ export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any 
 */
 export async function TokenVerify(ctx: Koa.Context) {
   const token = BasicAuth(ctx.req)
-  const security = getSecurity(ctx)
   if (!token || !token.name)
     return { message: 'token不存在', code: global.Code.forbidden }
   let tokenData
   try {
-    tokenData = JWT.verify(token.name, security.SECRET_KEY)
+    tokenData = JWT.verify(token.name, global.CONFIG.SECRET_KEY)
     let key = getTokenKey(ctx, tokenData)
     let tokenRedis: any = await clientGet(key)
     let tokenRedisInfo: any = await clientGet(tokenRedis)
@@ -89,18 +86,41 @@ export async function TokenVerify(ctx: Koa.Context) {
 /**
  * 是否不校验
 */
-function isEscape(path: string) {
-  let i = path.indexOf('?')
-  if (i !== -1) {
-    path = path.substring(0, i)
-  }
+async function isEscape(ctx: Koa.Context) {
+  let path = ctx.request.url
   let flag: boolean = false
-  unlessPath.find(value => {
-    if (path === value) {
-      flag = true
-      return true
-    }
-  })
+  let index = path.indexOf('?')
+  if (index !== -1)
+    path = path.substring(0, index)
+  // 如果是请求静态资源
+  if (path.startsWith('/files/') || path.startsWith('/images/')) {
+    const { query } = require('../../db')
+    let lastIndex = path.lastIndexOf('/')
+    let filePath = path.substring(lastIndex + 1)
+    let sql = 'SELECT is_login as isLogin, secret, create_user as createUser FROM files_info WHERE file_path = ?'
+    const res = await query(sql, filePath)
+    if (res.length) {
+      if (res[0]['isLogin'] == 0) flag = true
+      if (res[0]['secret'] == 1) {
+        try {
+          const token = BasicAuth(ctx.req) || { name: ctx.request.query.token }
+          let tokenData: any = JWT.verify(token.name, global.CONFIG.SECRET_KEY)
+          if (res[0]['createUser'] !== tokenData.id)
+            throw new global.ExceptionForbidden({ message: '你没有权限访问该文件' })
+        } catch (e) {
+          throw new global.ExceptionForbidden({ message: '你没有权限访问该文件' })
+        }
+      }
+    } else
+      throw new global.ExceptionNotFound()
+  } else { // 普通路由
+    unlessPath.find(value => {
+      if (path === value) {
+        flag = true
+        return true
+      }
+    })
+  }
   return flag
 }
 
@@ -113,14 +133,6 @@ export function getTokenKey(ctx: Koa.Context, user: any) {
   key = user.id + '_' + terminal
   if (global.CONFIG.ALLOW_MULTIPLE) key = key + user.userAgent
   return key
-}
-
-/**
- * 获取 SECURITY
-*/
-function getSecurity(ctx: Koa.Context) {
-  let terminal = global.tools.getTerminal(ctx)
-  return global.CONFIG['SECURITY_' + terminal]
 }
 
 /**

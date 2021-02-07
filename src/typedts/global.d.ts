@@ -12,6 +12,7 @@ interface ToolsOptions {
   toCamelCase: Function,
   isObject: Function,
   getUuId: Function,
+  getFileName: Function,
   [x: string]: any
 }
 
@@ -30,12 +31,6 @@ interface RedisOption {
   PASSWORD: string
 }
 
-interface SecurityOption {
-  SECRET_KEY: string,
-  EXPIRES_IN: number,
-  DELAY: number
-}
-
 interface WXOption {
   APP_ID: string,
   APP_SECRET: string,
@@ -47,19 +42,16 @@ interface ConfigOption {
   PORT: number,
   HTTPS_PORT: number,
   ALLOW_MULTIPLE: boolean,
+  VERIFY_CHECK_FILE: boolean,
   CRYPTOJS_KEY: string,
   CRYPTOJS_IV: string,
   DATABASE: DatabaseOption,
   REDIS: RedisOption,
-  SECURITY_MANAGEMENT: SecurityOption,
-  SECURITY_PC: SecurityOption,
-  SECURITY_MOBILE: SecurityOption,
-  SECURITY_WECHAT: SecurityOption,
-  SECURITY_APP: SecurityOption,
+  SECRET_KEY: string,
+  EXPIRES_IN: number,
+  DELAY: number,
   WX: WXOption,
   BASE_URL: string,
-  FILE_URL: string,
-  IMAGE_URL: string,
   [x: string]: any
 }
 

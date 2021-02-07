@@ -16,8 +16,9 @@ import { clientGet, clientDel } from '../../middlewares/redis'
 export async function doUserRegister(ctx: Koa.Context, next?: any) {
   let password = encrypt(ctx.data.header['word-info'])
   let phone = ctx.data.body.phone
-  let sql = `INSERT tb_admin (name, password, sex, phone,instroduce, root) VALUES (?,?,?,?,?,?)`
-  let data = ['测试张三', password, '男', phone, '测试人员', '1']
+  let id = global.tools.getUuId()
+  let sql = `INSERT users_info (id, user_name, password, phone) VALUES (?,?,?,?)`
+  let data = [id, '测试张三', password, phone]
   const res = await query(sql, data)
   throw new global.Success({
     message: '恭喜，注册成功！'
@@ -30,7 +31,7 @@ export async function doUserRegister(ctx: Koa.Context, next?: any) {
 */
 export async function doUserLogin(ctx: Koa.Context, next?: any) {
   let password = encrypt(ctx.data.header['word-info'])
-  let sql = `SELECT id, password FROM tb_admin WHERE phone = ?`
+  let sql = `SELECT id, password FROM users_info WHERE phone = ?`
   let phone = ctx.data.body.phone
   const res: any = await query(sql, phone)
   let dbPassword = res[0]['password']
@@ -85,7 +86,7 @@ export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
 */
 export async function doUserExit(ctx: Koa.Context, next?: any) {
   let key = getTokenKey(ctx, ctx.user)
-  let tokenKey:any = await clientGet(key)
+  let tokenKey: any = await clientGet(key)
   await clientDel(key)
   await clientDel(tokenKey)
   throw new global.Success({
@@ -99,7 +100,7 @@ export async function doUserExit(ctx: Koa.Context, next?: any) {
 */
 
 export async function getUserInfo(ctx: Koa.Context, next?: any) {
-  let sql = `SELECT * FROM tb_admin WHERE id = ?`
+  let sql = `SELECT * FROM users_info WHERE id = ?`
   let res: any = await query(sql, ctx.user.id)
   res = res[0]
   delete res.password

@@ -39,17 +39,3 @@ interface ObjectRoute {
   unless?: boolean,
   terminals: string[]
 }
-
-// 任意数组类型
-interface ArrayAny {
-  [index: number]: any,
-  length: number
-}
-
-
-
-
-
-
-
-

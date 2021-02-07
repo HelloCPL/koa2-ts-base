@@ -5,7 +5,7 @@
 */
 
 import Koa from 'koa'
-import {v1 as uuidv1} from 'uuid'
+import { v1 as uuidv1, v4 as uuidv4 } from 'uuid'
 
 /**
  * 返回格式后的路径
@@ -63,7 +63,7 @@ function toCamelCase(results: any) {
     return newObj
   }
   // 处理数组 key
-  let toArrayKey = (arr: ArrayAny) => {
+  let toArrayKey = (arr: any[]) => {
     for (let i = 0, len = arr.length; i < len; i++) {
       if (global._.isArray(arr[i]))
         arr[i] = toArrayKey(arr[i])
@@ -88,7 +88,15 @@ function isObject(obj: any) {
 
 // 生成唯一id标识
 function getUuId() {
-  return uuidv1()
+  return uuidv4()
+}
+
+// 生成随机名字
+function getFileName(fileName: string) {
+  let i = fileName.lastIndexOf('.')
+  let suffix = ''
+  if (i !== -1) suffix = fileName.substring(i)
+  return uuidv1() + suffix
 }
 
 export default {
@@ -98,5 +106,6 @@ export default {
   getUserAgent,
   toCamelCase,
   isObject,
-  getUuId
+  getUuId,
+  getFileName
 }
