@@ -35,52 +35,53 @@ export function TokenAuth(unlessList: string[]) {
 
 /**
  * 生成 token
- * redis 保存 token 结构 { id, phone, delayTime, userAgent }
+ * redis 保存 token 结构 { id, phone, delayTime(延迟更新时间), userAgent, terminal }
 */
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
   let currentDate: number = global.dayjs().unix()
   user.delayTime = currentDate + global.CONFIG.EXPIRES_IN + global.CONFIG.DELAY
+  user.terminal = global.tools.getTerminal(ctx)
   let token = JWT.sign(user, global.CONFIG.SECRET_KEY, {
     expiresIn: global.CONFIG.EXPIRES_IN
   })
   let key = getTokenKey(ctx, user)
-  await saveRedisToken(key, token, user)
+  await saveRedisToken(key, token)
   return token
 }
 
 /**
- * 校验 token 合法性
+ * 校验 token 合法性 普通接口请求拦截
 */
 export async function TokenVerify(ctx: Koa.Context) {
-  const token = BasicAuth(ctx.req)
-  if (!token || !token.name)
+  const tokenOrigin = BasicAuth(ctx.req)
+  if (!tokenOrigin || !tokenOrigin.name)
     return { message: 'token不存在', code: global.Code.forbidden }
-  let tokenData
+  const token = tokenOrigin.name
+  const tokenInfo: any = JWT.decode(token)
   try {
-    tokenData = JWT.verify(token.name, global.CONFIG.SECRET_KEY)
-    let key = getTokenKey(ctx, tokenData)
+    let tokenVerify = JWT.verify(token, global.CONFIG.SECRET_KEY)
+    let key = getTokenKey(ctx, tokenVerify)
     let tokenRedis: any = await clientGet(key)
-    let tokenRedisInfo: any = await clientGet(tokenRedis)
+    let tokenRedisInfo: any = JWT.decode(token)
     // token无效
     if (!tokenRedis || !tokenRedisInfo)
-      return { message: '请重新登录', code: global.Code.authRegister, token: token.name }
+      return { message: '请重新登录', code: global.Code.authLogin, token: token }
     // token与redis保存不一致
-    if (tokenRedis !== token.name)
-      return { message: '您的账号已在其他设备登录！', code: global.Code.authFailed, token: token.name }
+    if (tokenRedis !== token)
+      return { message: '您的账号已在其他设备登录！', code: global.Code.authFailed, token: token }
     // token的登录设备信息与当前设备信息不一致
     if (tokenRedisInfo.userAgent !== ctx.request.header['user-agent'])
-      return { message: '登录设备异常，为了安全请修改密码！', code: global.Code.authFailed, token: token.name }
+      return { message: '登录设备异常，为了安全请修改密码！', code: global.Code.authFailed, token: token }
   } catch (e) {
-    let tokenInfo: any = await clientGet(token.name)
     let currentDateValue = global.dayjs().unix()
     // token已过期，但可刷新
     if (tokenInfo && currentDateValue < tokenInfo.delayTime)
-      return { message: 'token已过期，请重新刷新', code: global.Code.authRefresh, token: token.name }
+      return { message: 'token已过期，请重新刷新', code: global.Code.authRefresh, token: token }
     // token已过期，不可刷新
-    return { message: '请重新登录', code: global.Code.authRegister, token: token.name }
+    return { message: '请重新登录', code: global.Code.authLogin, token: token }
   }
   // token合法有效
-  return { message: '验证通过', code: global.Code.success, data: tokenData, token: token.name }
+  return { message: '验证通过', code: global.Code.success, data: tokenInfo, token: token }
 }
 
 /**
@@ -100,16 +101,14 @@ async function isEscape(ctx: Koa.Context) {
     let sql = 'SELECT is_login as isLogin, secret, create_user as createUser FROM files_info WHERE file_path = ?'
     const res = await query(sql, filePath)
     if (res.length) {
-      if (res[0]['isLogin'] == 0) flag = true
+      if (res[0]['isLogin'] == 0 || !global.CONFIG.VERIFY_CHECK_FILE) flag = true
       if (res[0]['secret'] == 1) {
-        try {
-          const token = BasicAuth(ctx.req) || { name: ctx.request.query.token }
-          let tokenData: any = JWT.verify(token.name, global.CONFIG.SECRET_KEY)
-          if (res[0]['createUser'] !== tokenData.id)
-            throw new global.ExceptionForbidden({ message: '你没有权限访问该文件' })
-        } catch (e) {
+        const tokenData: any = await TokenVerify(ctx)
+        if (tokenData.code !== global.Code.success)
+          throw new global.ExceptionHttp(tokenData)
+        if (res[0]['createUser'] !== tokenData.data.id)
           throw new global.ExceptionForbidden({ message: '你没有权限访问该文件' })
-        }
+        flag = true
       }
     } else
       throw new global.ExceptionNotFound()
@@ -129,8 +128,7 @@ async function isEscape(ctx: Koa.Context) {
 */
 export function getTokenKey(ctx: Koa.Context, user: any) {
   let key: any
-  let terminal = global.tools.getTerminal(ctx)
-  key = user.id + '_' + terminal
+  key = user.id + '_' + user.terminal
   if (global.CONFIG.ALLOW_MULTIPLE) key = key + user.userAgent
   return key
 }
@@ -138,10 +136,7 @@ export function getTokenKey(ctx: Koa.Context, user: any) {
 /**
  * 保存并更新 redis 的 token 记录
 */
-async function saveRedisToken(key: string, token: any, user: any) {
-  let tokenKey: any = await clientGet(key)
+async function saveRedisToken(key: string, token: any) {
   await clientDel(key)
-  await clientDel(tokenKey)
   await clientSet(key, token)
-  await clientSet(token, user)
 }

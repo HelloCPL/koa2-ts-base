@@ -73,7 +73,7 @@ interface CodeOption {
   forbidden: number,
   authFailed: number,
   success: number,
-  authRegister: number,
+  authLogin: number,
   authRefresh: number,
   [x: string]: any
 }

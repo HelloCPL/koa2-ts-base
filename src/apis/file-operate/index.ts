@@ -10,7 +10,7 @@ import { doFileUpload, doFileDelete } from '../../controller/file-operate'
 import { doFileDeleteIsPower } from '../../controller/file-operate/convert'
 
 @Prefix('file')
-export default class MulterController {
+export default class FileController {
 
   // 文件文件上传 可上传一个或多个文件 返回数组格式
   // 可选参数 secret 是否设为私密
@@ -26,5 +26,4 @@ export default class MulterController {
   async doFileDelete(ctx: Koa.Context, next: any) {
     await doFileDelete(ctx, next)
   }
-
 }

@@ -6,7 +6,7 @@
 
 import Koa from 'koa'
 import { Prefix, Get, Post, Required, Convert } from '../../middlewares/router'
-import { doUserRegister, doUserLogin, doUserTokenRefresh, getUserInfo, doUserExit } from '../../controller/users'
+import { doUserRegister, doUserLogin, doUserTokenRefresh, getUserInfoSelf, getUserInfoById, doUserExit } from '../../controller/users'
 import { doUserRegisterIsExist, doUserLoginIsNotExist } from '../../controller/users/convert'
 
 @Prefix('users')
@@ -41,9 +41,16 @@ export default class UsersController {
   }
 
   // 获取本用户信息
+  @Get('info/self')
+  async getUserInfoSelf(ctx: Koa.Context, next: any) {
+    await getUserInfoSelf(ctx, next)
+  }
+
+  // 获取指定用户信息
   @Get('info')
-  async getUserInfo(ctx: Koa.Context, next: any) {
-    await getUserInfo(ctx, next)
+  @Required(['id'])
+  async getUserInfoById(ctx: Koa.Context, next: any) {
+    await getUserInfoById(ctx, next)
   }
   
 }

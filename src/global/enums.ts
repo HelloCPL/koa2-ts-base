@@ -26,10 +26,10 @@ export enum Code {
   error = 500,
   parameter = 400,
   notFound = 404,
-  forbidden = 403,
-  authFailed = 401,
+  forbidden = 403, // 权限不足
+  authFailed = 401, // 授权失败
   success = 200,
-  authRegister = 205, // 重新登录
+  authLogin = 205, // 重新登录
   authRefresh = 206, // token 失效需重新刷新
 }
 

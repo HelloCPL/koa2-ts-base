@@ -49,7 +49,7 @@ const InitConfig = () => {
         PORT: 3000,
         HTTPS_PORT: 443,
         ALLOW_MULTIPLE: false, // 是否允许同一账号同时登陆多个设备
-        VERIFY_CHECK_FILE: true, // 是否对文件查看进行权限判断
+        VERIFY_CHECK_FILE: true, // 是否对文件查看进行权限判断(私密文件必须登录)
         CRYPTOJS_KEY: 'thisisacryptojskey63', // crypto-js 加密字符
         CRYPTOJS_IV: 'thisisacryptojsiv63', // crypto-js 加密字符
         DATABASE: { // 数据库配置

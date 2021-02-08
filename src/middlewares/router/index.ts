@@ -96,6 +96,25 @@ export function Delete(path: string, unless?: boolean, terminals?: string[]) {
 
 /**
  * @author chen
+ * @params path 路由路径 unless 是否拦截 terminals 支持的终端，包括 ['management','pc','wechat','mobile', 'app']
+ * @description: 处理 all 请求 方法装饰器
+ * @update 2021-02-08 12:02:13
+*/
+export function All(path: string, unless?: boolean, terminals?: string[]) {
+  return (target: any, name: string, descriptor: PropertyDescriptor) => {
+    let config = {
+      method: 'all',
+      path,
+      unless,
+      terminals
+    }
+    return router(target, name, descriptor, config)
+  }
+}
+
+
+/**
+ * @author chen
  * @params params 必传参数列表，如需指定类型，用 &+类型 拼接成字符串
  * 如 @Required(['id', 'age&isInt', 'type&isBoolean'])
  * @description 校验必传参数 包含 params query path header 后面可通过 ctx.data[类型].XXX 获取参数 方法装饰器
