@@ -22,14 +22,16 @@
     lib  ------------------------------- 引用包目录
     middlewares
       exception/index.ts  -------------- 全局异常处理
+      redis/index.ts  ------------------ 连接 redis
       router
         index.ts  ---------------------- 路由注册装饰器
         Route.ts  ---------------------- 路由自动注册
       token-auth/index.ts  ------------- token 权限拦截
     typedts  --------------------------- 全局变量 global 和 安装包的声明
-      custom.d.ts  ---------------------- 自定义接口，用于全局范围
-      global.d.ts  ---------------------- 全局变量 global 挂载新属性声明
-      koa.d.ts  ------------------------- koa 追加 Context 上下文新属性声明
+      custom.d.ts  --------------------- 自定义接口，用于全局范围
+      global.d.ts  --------------------- 全局变量 global 挂载新属性声明
+      koa-redis.d.ts  ------------------ 追加 redis 声明
+      koa.d.ts  ------------------------ koa 追加 Context 上下文新属性声明
     utils
       crypto.ts  ----------------------- crypto-js 密码加密解密方法
       find-members.ts  ----------------- 自定义查找成员方法
@@ -53,6 +55,9 @@
   global.ExceptionForbidden // 无权限异常，如 throw new global.ExceptionForbidden()
   global.ExceptionAuthFailed // 权限不足异常，如 throw new global.ExceptionAuthFailed()
   global.Success // 成功异常类，如 throw new global.Success({data: 1})
+  global.requestCount // 请求次数
+  global.requestStart // 请求开始时间
+  global.requestEnd // 请求结束时间
 ```
 
 ##### 上下文 Context 附加信息
@@ -71,7 +76,6 @@
   ObjectSQLParams // 数据库查询参数接口类型
   ObjectRequired // 路由请求参数接口类型
   ObjectRoute // 自动注册路由传参接口类型
-  ArrayAny // 任意数组类型
 ```
 
 ##### 路由装饰器
@@ -96,24 +100,28 @@
   - `Authorization` // 普通请求携带的 token 请求头
   - `user-agent` // 访问平台设备信息
 
+##### 实现功能
+
+- 处理跨域请求
+- koa-body 处理post请求参数以及文件上传
+- 挂载全局变量、常量、方法
+- 自定义全局异常类并全局捕捉异常，通过异常抛出返回数据
+- 连接MySQL数据库、连接redis数据库
+- 初始化路由、用户身份权限拦截
+- 静态资源托管，实现文件请求访问
+
+- 创建路由集合（api目录）
+- 创建逻辑处理集合（controller目录）
+
+
+
 ## 流程
 
 - 日志记录
-
 - socket.io 实时发送
 - 配置 用户白名单和黑名单 (通过权限)
 - 获取 wx openID
-
-
 - 富文本编辑(暂时不做)
-
-文件上传（koa-body）以及 处理post请求参数
-静态资源托管以及资源权限拦截
-权限拦截中间件
-连接数据库
-连接redis
-全局方法
-
 
 
 

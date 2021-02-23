@@ -42,7 +42,7 @@ export async function catchError(ctx: Koa.Context, next: any) {
   }
 }
 
-
+// 打印捕捉的错误
 function throwError(error: any, isExceptionHttp: boolean) {
   let isSuccess = error instanceof Success
   if (isSuccess) return
