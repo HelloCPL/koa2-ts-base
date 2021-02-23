@@ -29,6 +29,9 @@ class InitGlobal {
     global.ExceptionForbidden = ExceptionForbidden // 权限不足异常
     global.ExceptionAuthFailed = ExceptionAuthFailed // 授权失败异常
     global.Success = Success // 成功异常类
+    global.requestCount = 0
+    global.requestStart = process.hrtime.bigint()
+    global.requestEnd = process.hrtime.bigint()
   }
 }
 

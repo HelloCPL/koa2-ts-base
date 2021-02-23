@@ -115,11 +115,9 @@ export async function getUserInfoSelf(ctx: Koa.Context, next?: any) {
  * 获取本用户信息
 */
 export async function getUserInfoById(ctx: Koa.Context, next?: any) {
-  console.log(process.hrtime());
   let sql = `SELECT * FROM users_info WHERE id = ?`
   let id = ctx.data.query.id
   let res: any = await query(sql, id)
-  console.log(res);
   let userInfo: any
   if (res.length) {
     userInfo = res[0]

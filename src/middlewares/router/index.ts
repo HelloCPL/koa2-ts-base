@@ -10,6 +10,9 @@ import { symbolRoutePrefix, Route } from './Route';
 import { ValidatorParameters } from '../../utils/validator'
 import { LinValidator } from '../../lib/lin-validator'
 
+// 记录总数
+export let requestCount: number = 0
+
 /**
  * @author chen
  * @params prefix 路由前缀
@@ -171,10 +174,23 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
   // target[name].splice(target[name].length - 1, 0, middleware)
   let i = target[name].length - 1 >= 1 ? 1 : 0
   target[name].splice(i, 0, middleware)
+  // target[name.splice(target[name].length - 1, 0, middleware)]
   return descriptor
+  // 挂载参数数据并记录打印日志
   async function middleware(ctx: Koa.Context, next: any) {
     const v = await new LinValidator().validate(ctx)
     ctx.data = v.data
+    // 记录日志
+    global.requestCount++
+    global.requestStart = process.hrtime.bigint()
+    let userId = null
+    if (ctx.user) userId = ctx.user.id
+    console.log('');
+    console.log(`------------------- 请求开始 ${global.requestCount} -----------------`);
+    console.log(`请求接口：${ctx.method} ${ctx.url}`);
+    console.log(`请求用户ID：${ctx.user.id}`);
+    console.log(`请求开始时间：${global.dayjs().format('YYYY-MM-DD HH:mm:ss')}`);
+    console.log('');
     await next()
   }
 }

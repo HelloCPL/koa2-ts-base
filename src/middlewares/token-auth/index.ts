@@ -20,8 +20,6 @@ let unlessPath: string[] = []
 export function TokenAuth(unlessList: string[]) {
   unlessPath = unlessList
   return async (ctx: Koa.Context, next: any) => {
-    console.log('访问的接口是：' + ctx.request.url);
-    console.log('');
     let flag = await isEscape(ctx)
     if (!flag) {
       const tokenData: any = await TokenVerify(ctx)

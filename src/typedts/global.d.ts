@@ -103,6 +103,9 @@ declare namespace NodeJS {
     ExceptionNotFound: any,
     ExceptionForbidden: any,
     ExceptionAuthFailed: any,
-    Success: any
+    Success: any,
+    requestCount: number,
+    requestStart: any,
+    requestEnd: any,
   }
 }
