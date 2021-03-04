@@ -33,8 +33,7 @@ interface RedisOption {
 
 interface WXOption {
   APP_ID: string,
-  APP_SECRET: string,
-  LOGIN_URL: string,
+  APP_SECRET: string
 }
 
 interface ConfigOption {

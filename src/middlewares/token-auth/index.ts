@@ -32,13 +32,15 @@ export function TokenAuth(unlessList: string[]) {
 }
 
 /**
+ * user 参数 {id, phone, openid}
  * 生成 token
- * redis 保存 token 结构 { id, phone, delayTime(延迟更新时间), userAgent, terminal }
+ * redis 保存 token 结构 { id, phone, openid, delayTime(延迟更新时间), userAgent, terminal }
 */
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
   let currentDate: number = global.dayjs().unix()
   user.delayTime = currentDate + global.CONFIG.EXPIRES_IN + global.CONFIG.DELAY
   user.terminal = global.tools.getTerminal(ctx)
+  user.userAgent = ctx.request.header['user-agent'] 
   let token = JWT.sign(user, global.CONFIG.SECRET_KEY, {
     expiresIn: global.CONFIG.EXPIRES_IN
   })
@@ -126,7 +128,7 @@ async function isEscape(ctx: Koa.Context) {
 */
 export function getTokenKey(ctx: Koa.Context, user: any) {
   let key: any
-  key = user.id + '_' + user.terminal
+  key = `${user.id}_${user.openid}_${user.terminal}`
   if (global.CONFIG.ALLOW_MULTIPLE) key = key + user.userAgent
   return key
 }

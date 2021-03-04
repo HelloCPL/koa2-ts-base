@@ -188,7 +188,8 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
     console.log('');
     console.log(`------------------- 请求开始 ${global.requestCount} -----------------`);
     console.log(`请求接口：${ctx.method} ${ctx.url}`);
-    console.log(`请求用户ID：${ctx.user.id}`);
+    if (ctx.user && ctx.user.id)
+      console.log(`请求用户ID：${ctx.user.id}`);
     console.log(`请求开始时间：${global.dayjs().format('YYYY-MM-DD HH:mm:ss')}`);
     console.log('');
     await next()

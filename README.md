@@ -68,6 +68,17 @@
   ctx.terminal // 获取访问的终端
 ```
 
+##### token 数据结构
+
+```
+  id 用户 id（小程序token可能为空）
+  phone 用户手机号 （小程序token可能为空）
+  openid 小程序用户的openid（只有小程序有值）
+  delayTime token可延迟更新时间
+  userAgent 登录设备信息
+  terminal 登录终端
+```
+
 ##### 自定义接口 用于全局声明
 
 ```

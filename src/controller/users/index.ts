@@ -10,6 +10,8 @@ import { query, execTrans } from '../../db'
 import { TokenGernerate, TokenVerify, getTokenKey } from '../../middlewares/token-auth'
 import { encrypt, decrypt } from '../../utils/crypto'
 import { clientGet, clientDel } from '../../middlewares/redis'
+import { codeToOpenId } from '../../lib/wechat-openid'
+import { isExistUserOpenid, isBindingUserOpenid } from './convert'
 
 /**
  * 用户注册
@@ -44,7 +46,7 @@ export async function doUserLogin(ctx: Koa.Context, next?: any) {
     let user = {
       id: res[0]['id'],
       phone,
-      userAgent: ctx.request.header['user-agent']
+      openid: null
     }
     let token = await TokenGernerate(ctx, user)
     throw new global.Success({
@@ -53,6 +55,39 @@ export async function doUserLogin(ctx: Koa.Context, next?: any) {
   }
   throw new global.ExceptionParameter({
     message: '密码错误'
+  })
+}
+
+/**
+ * 用户登录（小程序用户登录）
+ * 获取 openID ，如果 openID 存在直接返回token，否则注册后返回token
+*/
+export async function doUserLoginWeChat(ctx: Koa.Context, next?: any) {
+  let code = ctx.data.body.code
+  let wechatData = await codeToOpenId(code)
+  let flag = await isExistUserOpenid(wechatData.openid)
+  if (!flag) { // 注册
+    let avatarUrl = ctx.data.body.avatarUrl
+    let nickName = ctx.data.body.nickName
+    let country = ctx.data.body.country
+    let province = ctx.data.body.province
+    let city = ctx.data.body.city
+    let language = ctx.data.body.language
+    let sql = `INSERT users_wechat_info (openid, session_key, avatar_url, nick_name, country, province, city, language) VALUES (?,?,?,?,?,?,?,?)`
+    let data = [wechatData.openid, wechatData.session_key, avatarUrl, nickName, country, province, city, language]
+    await query(sql, data)
+  }
+  const res = await isBindingUserOpenid(wechatData.openid)
+  // 返回 token 
+  let user = {
+    id: res.id,
+    phone: res.phone,
+    openid: wechatData.openid
+  }
+  console.log(user);
+  let token = await TokenGernerate(ctx, user)
+  throw new global.Success({
+    data: token
   })
 }
 
@@ -67,12 +102,11 @@ export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
       data: tokenData.token
     })
   let tokenInfo: any = JWT.decode(tokenData.token)
-  console.log(tokenInfo);
   if (tokenData.token && tokenData.code === global.Code.authRefresh && tokenInfo) {
     let user = {
       id: tokenInfo.id,
       phone: tokenInfo.phone,
-      userAgent: ctx.request.header['user-agent']
+      openid: tokenInfo.openid
     }
     let token = await TokenGernerate(ctx, user)
     throw new global.Success({
@@ -97,7 +131,6 @@ export async function doUserExit(ctx: Koa.Context, next?: any) {
   })
 }
 
-
 /**
  * 获取本用户信息
 */
@@ -112,7 +145,21 @@ export async function getUserInfoSelf(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 获取本用户信息
+ * 获取本用户信息(小程序用户)
+*/
+export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
+  let sql = `SELECT *, t1.openid FROM users_wechat_info t1 LEFT JOIN users_info t2 ON t1.openid = t2.openid WHERE t1.openid = ?`
+  let res: any = await query(sql, ctx.user.openid)
+  res = res[0]
+  delete res.password
+  delete res['session_key']
+  throw new global.Success({
+    data: res
+  })
+}
+
+/**
+ * 获取指定用户信息
 */
 export async function getUserInfoById(ctx: Koa.Context, next?: any) {
   let sql = `SELECT * FROM users_info WHERE id = ?`

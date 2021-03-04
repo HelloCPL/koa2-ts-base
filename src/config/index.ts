@@ -35,9 +35,8 @@ const InitConfig = () => {
         EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
         DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
         WX: { // 微信小程序信息配置
-          APP_ID: 'wx15b4165798ef239f',
-          APP_SECRET: 'e6f25f907790b77055c731eae3fdc36e',
-          LOGIN_URL: 'https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code'
+          APP_ID: 'wxbeb5ada6bf1d27ef',
+          APP_SECRET: 'b11e05c65f0e9db81695f827b49edcb8',
         },
         BASE_URL: 'http://106.55.153.80:3000/', // 默认路径
       }
@@ -70,9 +69,8 @@ const InitConfig = () => {
         EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
         DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
         WX: { // 微信小程序信息配置
-          APP_ID: 'wx15b4165798ef239f',
-          APP_SECRET: 'e6f25f907790b77055c731eae3fdc36e',
-          LOGIN_URL: 'https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code'
+          APP_ID: 'wxbeb5ada6bf1d27ef',
+          APP_SECRET: 'b11e05c65f0e9db81695f827b49edcb8',
         },
         BASE_URL: 'http://localhost:3000/', // 默认路径
       }
