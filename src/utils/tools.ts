@@ -91,21 +91,28 @@ function getUuId() {
   return uuidv4()
 }
 
-// 生成随机名字
-function getFileName(fileName: string) {
+// 生成文件随机名字
+function getFileRandomName(fileName: string) {
   let i = fileName.lastIndexOf('.')
   let suffix = ''
   if (i !== -1) suffix = fileName.substring(i)
   return uuidv1() + suffix
 }
 
+// 返回当前时间（或指定时间）
+function getCurrentTime(date: any) {
+  date = date || new Date()
+  return global.dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+}
+
 export default {
   toPath,
-  sureIsArray,
-  getTerminal,
+  sureIsArray, // 确保返回的为数组
+  getTerminal, 
   getUserAgent,
   toCamelCase,
   isObject,
   getUuId,
-  getFileName
+  getFileRandomName,
+  getCurrentTime
 }

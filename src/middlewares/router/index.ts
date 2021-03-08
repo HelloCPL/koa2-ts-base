@@ -115,7 +115,6 @@ export function All(path: string, unless?: boolean, terminals?: string[]) {
   }
 }
 
-
 /**
  * @author chen
  * @params params 必传参数列表，如需指定类型，用 &+类型 拼接成字符串
@@ -190,7 +189,7 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
     console.log(`请求接口：${ctx.method} ${ctx.url}`);
     if (ctx.user && ctx.user.id)
       console.log(`请求用户ID：${ctx.user.id}`);
-    console.log(`请求开始时间：${global.dayjs().format('YYYY-MM-DD HH:mm:ss')}`);
+    console.log(`请求开始时间：${global.tools.getCurrentTime()}`);
     console.log('');
     await next()
   }

@@ -37,10 +37,10 @@ export function TokenAuth(unlessList: string[]) {
  * redis 保存 token 结构 { id, phone, openid, delayTime(延迟更新时间), userAgent, terminal }
 */
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
-  let currentDate: number = global.dayjs().unix()
-  user.delayTime = currentDate + global.CONFIG.EXPIRES_IN + global.CONFIG.DELAY
+  let currentTime: number = global.dayjs().unix()
+  user.delayTime = currentTime + global.CONFIG.EXPIRES_IN + global.CONFIG.DELAY
   user.terminal = global.tools.getTerminal(ctx)
-  user.userAgent = ctx.request.header['user-agent'] 
+  user.userAgent = ctx.request.header['user-agent']
   let token = JWT.sign(user, global.CONFIG.SECRET_KEY, {
     expiresIn: global.CONFIG.EXPIRES_IN
   })
@@ -85,33 +85,30 @@ export async function TokenVerify(ctx: Koa.Context) {
 }
 
 /**
- * 是否不校验
+ * 是否不校验 返回 true 路由不校验
 */
 async function isEscape(ctx: Koa.Context) {
-  let path = ctx.request.url
+  let path = getPath(ctx.request.url)
   let flag: boolean = false
-  let index = path.indexOf('?')
-  if (index !== -1)
-    path = path.substring(0, index)
   // 如果是请求静态资源
   if (path.startsWith('/files/') || path.startsWith('/images/')) {
-    const { query } = require('../../db')
-    let lastIndex = path.lastIndexOf('/')
-    let filePath = path.substring(lastIndex + 1)
-    let sql = 'SELECT is_login as isLogin, secret, create_user as createUser FROM files_info WHERE file_path = ?'
-    const res = await query(sql, filePath)
-    if (res.length) {
-      if (res[0]['isLogin'] == 0 || !global.CONFIG.VERIFY_CHECK_FILE) flag = true
-      if (res[0]['secret'] == 1) {
-        const tokenData: any = await TokenVerify(ctx)
-        if (tokenData.code !== global.Code.success)
-          throw new global.ExceptionHttp(tokenData)
-        if (res[0]['createUser'] !== tokenData.data.id)
-          throw new global.ExceptionForbidden({ message: '你没有权限访问该文件' })
-        flag = true
-      }
-    } else
-      throw new global.ExceptionNotFound()
+    // const { query } = require('../../db')
+    // let lastIndex = path.lastIndexOf('/')
+    // let filePath = path.substring(lastIndex + 1)
+    // let sql = 'SELECT is_login as isLogin, secret, create_user as createUser FROM files_info WHERE file_path = ?'
+    // const res = await query(sql, filePath)
+    // if (res.length) {
+    //   if (res[0]['isLogin'] == 0 || !global.CONFIG.VERIFY_CHECK_FILE) flag = true
+    //   if (res[0]['secret'] == 1) {
+    //     const tokenData: any = await TokenVerify(ctx)
+    //     if (tokenData.code !== global.Code.success)
+    //       throw new global.ExceptionHttp(tokenData)
+    //     if (res[0]['createUser'] !== tokenData.data.id)
+    //       throw new global.ExceptionForbidden({ message: '你没有权限访问该文件' })
+    flag = true
+    //   }
+    // } else
+    //   throw new global.ExceptionNotFound()
   } else { // 普通路由
     unlessPath.find(value => {
       if (path === value) {
@@ -139,4 +136,12 @@ export function getTokenKey(ctx: Koa.Context, user: any) {
 async function saveRedisToken(key: string, token: any) {
   await clientDel(key)
   await clientSet(key, token)
+}
+
+// 获取请求路径
+function getPath(path: string) {
+  let index = path.indexOf('?')
+  if (index !== -1)
+    path = path.substring(0, index)
+  return path
 }

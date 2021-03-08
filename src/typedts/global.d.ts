@@ -12,7 +12,8 @@ interface ToolsOptions {
   toCamelCase: Function,
   isObject: Function,
   getUuId: Function,
-  getFileName: Function,
+  getFileRandomName: Function,
+  getCurrentTime: Function,
   [x: string]: any
 }
 

@@ -12,6 +12,7 @@ import { encrypt, decrypt } from '../../utils/crypto'
 import { clientGet, clientDel } from '../../middlewares/redis'
 import { codeToOpenId } from '../../lib/wechat-openid'
 import { isExistUserOpenid, isBindingUserOpenid } from './convert'
+import { getFileById, getFileByIds } from '../file-operate'
 
 /**
  * 用户注册
@@ -19,9 +20,11 @@ import { isExistUserOpenid, isBindingUserOpenid } from './convert'
 export async function doUserRegister(ctx: Koa.Context, next?: any) {
   let password = encrypt(ctx.data.header['word-info'])
   let phone = ctx.data.body.phone
+  let userName = ctx.data.body.userName
   let id = global.tools.getUuId()
-  let sql = `INSERT users_info (id, user_name, password, phone) VALUES (?,?,?,?)`
-  let data = [id, '测试张三', password, phone]
+  let currentTime = global.tools.getCurrentTime()
+  let sql = `INSERT users_info (id, user_name, password, phone, update_time, create_time) VALUES (?,?,?,?,?,?)`
+  let data = [id, userName, password, phone, currentTime, currentTime]
   const res = await query(sql, data)
   throw new global.Success({
     message: '恭喜，注册成功！'
@@ -73,8 +76,9 @@ export async function doUserLoginWeChat(ctx: Koa.Context, next?: any) {
     let province = ctx.data.body.province
     let city = ctx.data.body.city
     let language = ctx.data.body.language
-    let sql = `INSERT users_wechat_info (openid, session_key, avatar_url, nick_name, country, province, city, language) VALUES (?,?,?,?,?,?,?,?)`
-    let data = [wechatData.openid, wechatData.session_key, avatarUrl, nickName, country, province, city, language]
+    let currentTime = global.tools.getCurrentTime()
+    let sql = `INSERT users_wechat_info (openid, session_key, avatar_url, nick_name, country, province, city, language, create_time) VALUES (?,?,?,?,?,?,?,?,?)`
+    let data = [wechatData.openid, wechatData.session_key, avatarUrl, nickName, country, province, city, language, currentTime]
     await query(sql, data)
   }
   const res = await isBindingUserOpenid(wechatData.openid)
@@ -132,45 +136,75 @@ export async function doUserExit(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 获取本用户信息
+ * 获取指定用户信息(本用户或指定用户)
 */
-export async function getUserInfoSelf(ctx: Koa.Context, next?: any) {
+export async function getUserInfoById(ctx: Koa.Context, next: any, id: any) {
   let sql = `SELECT * FROM users_info WHERE id = ?`
-  let res: any = await query(sql, ctx.user.id)
-  res = res[0]
-  delete res.password
-  throw new global.Success({
-    data: res
-  })
-}
-
-/**
- * 获取本用户信息(小程序用户)
-*/
-export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
-  let sql = `SELECT *, t1.openid FROM users_wechat_info t1 LEFT JOIN users_info t2 ON t1.openid = t2.openid WHERE t1.openid = ?`
-  let res: any = await query(sql, ctx.user.openid)
-  res = res[0]
-  delete res.password
-  delete res['session_key']
-  throw new global.Success({
-    data: res
-  })
-}
-
-/**
- * 获取指定用户信息
-*/
-export async function getUserInfoById(ctx: Koa.Context, next?: any) {
-  let sql = `SELECT * FROM users_info WHERE id = ?`
-  let id = ctx.data.query.id
   let res: any = await query(sql, id)
   let userInfo: any
   if (res.length) {
     userInfo = res[0]
     delete userInfo.password
   }
+  // 处理头像
+  userInfo.head_img = await getFileById(ctx, userInfo.head_img)
   throw new global.Success({
     data: userInfo
   })
+}
+
+/**
+ * 获取本用户信息(小程序用户，只能获取本用户信息，无法获取指定用户信息)
+*/
+export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
+  let sql = `SELECT *, t1.openid, t1.create_time FROM users_wechat_info t1 LEFT JOIN users_info t2 ON t1.openid = t2.openid WHERE t1.openid = ?`
+  let res: any = await query(sql, ctx.user.openid)
+  res = res[0]
+  delete res.password
+  delete res['session_key']
+  // 处理头像
+  res.head_img = await getFileById(ctx, res.head_img)
+  throw new global.Success({
+    data: res
+  })
+}
+
+/**
+ * 修改用户部分信息(本用户或指定用户)
+*/
+export async function doUserEditById(ctx: Koa.Context, next: any, id: any) {
+  let userName = ctx.data.body.userName
+  let sex = ctx.data.body.sex || 0
+  let birthday = ctx.data.body.birthday
+  let address = ctx.data.body.address
+  let professional = ctx.data.body.professional
+  let currentTime = global.tools.getCurrentTime()
+  let sql = 'UPDATE users_info SET user_name = ?, sex = ?, birthday = ?, address = ?, professional = ?, update_time = ? WHERE id = ?;'
+  let data = [userName, sex, birthday, address, professional, currentTime, id]
+  let res: any = await query(sql, data)
+  if (res.affectedRows) {
+    throw new global.Success()
+  } else {
+    throw new global.ExceptionHttp({
+      message: '未找到该用户'
+    })
+  }
+}
+
+/**
+ * 修改用户头像(仅本用户)
+*/
+export async function doUserEditAvatarSelf(ctx: Koa.Context, next: any, file: any) {
+  let id = ctx.user.id
+  let currentTime = global.tools.getCurrentTime()
+  let sql = 'UPDATE users_info SET head_img = ?, update_time = ? WHERE id = ?;'
+  let data = [file.id, currentTime, id]
+  let res: any = await query(sql, data)
+  if (res.affectedRows) {
+    throw new global.Success({ data: file })
+  } else {
+    throw new global.ExceptionHttp({
+      message: '未找到该用户'
+    })
+  }
 }

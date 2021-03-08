@@ -57,18 +57,30 @@ export async function doFileDelete(ctx: Koa.Context, next?: any) {
 }
 
 /**
+ * 图片上传 可上传一个返回对象格式
+*/
+export async function doFileUploadImgOne(ctx: Koa.Context, next?: any) {
+  const files: any = ctx.request.files
+  const file: any = files.file
+  if (!file.type.startsWith('image'))
+    throw new global.ExceptionParameter({
+      message: '只能上传图片类型'
+    })
+  const fileObj = await writeFile(ctx, file)
+  return fileObj
+}
+
+/**
  * 写入文件并写入数据库
 */
 async function writeFile(ctx: Koa.Context, file: any, place?: string) {
   place = place || 'files'
   const secret = ctx.request.query.secret || '0'
-  const fileName = global.tools.getFileName(file.name)
+  const fileName = global.tools.getFileRandomName(file.name)
   // 先写入数据库
   let id = global.tools.getUuId()
-  let createTime = global.dayjs().format('YYYY-MM-DD HH:mm:ss')
-  let suffix,
-    i = file.name.lastIndexOf('.')
-  if (i !== -1) suffix = file.name.substring(i + 1)
+  let createTime = global.tools.getCurrentTime()
+  let suffix = getSuffix(file.name)
   let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, create_user) VALUES(?,?,?,?,?,?,?,?)`
   let data = [id, fileName, file.name, file.size, createTime, suffix, secret, ctx.user.id]
   await query(sql, data)
@@ -85,4 +97,59 @@ async function writeFile(ctx: Koa.Context, file: any, place?: string) {
     createTime,
     suffix,
   }
+}
+
+// 获取后缀名
+function getSuffix(name: string) {
+  let suffix,
+    i = name.lastIndexOf('.')
+  if (i !== -1) suffix = name.substring(i + 1)
+  return suffix
+}
+
+/**
+ * 单个文件 根据文件/图片 id 返回文件对象数据 没有返回 null
+ * 参数 id 文件id  isUser 是否返回创建者id字段，默认不返回
+*/
+export async function getFileById(ctx: Koa.Context, id: any, isUser?: boolean) {
+  if (!id) return null
+  let sql = `SELECT * FROM files_info WHERE id = ?`
+  const res: any = await query(sql, id)
+  if (res && res.length) {
+    let file: any = res[0]
+    return returnFileObj(ctx, file, isUser)
+  }
+  return null
+}
+
+/**
+ * 多个文件 根据文件/图片 ids 用逗号隔开 返回文件数组对象数据 没有返回 []
+*/
+export async function getFileByIds(ctx: Koa.Context, ids: any, isUser?: boolean) {
+  if (!ids) return []
+  let sql = `SELECT * FROM files_info WHERE FIND_IN_SET(id, ?)`
+  const res: any = await query(sql, ids)
+  let fileList: any[] = []
+  res.forEach((item: any) => {
+    let file = returnFileObj(ctx, item, isUser)
+    if (file) fileList.push(file)
+  });
+  return fileList
+}
+
+// 返回文件格式
+function returnFileObj(ctx: Koa.Context, file: any, isUser?: boolean) {
+  if (!file) return null
+  if (file.is_login && !ctx.user.id) return null
+  if (file.secret && ctx.user.id && ctx.user.id !== ctx.user.create_user) return null
+  let fileObj: ObjectAny = {
+    id: file.id,
+    file_name: file.file_name,
+    file_size: file.file_size,
+    create_time: file.create_time,
+    suffix: file.suffix,
+    file_path: global.CONFIG.BASE_URL + file.place + '/' + file.file_path,
+  }
+  if (isUser) fileObj.create_user = file.create_user
+  return fileObj
 }
