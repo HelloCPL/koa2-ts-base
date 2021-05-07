@@ -8,6 +8,7 @@ import Koa from 'koa'
 import fs from 'fs'
 import path from 'path'
 import { query, execTrans } from '../../db'
+import { encrypt } from '../../utils/crypto'
 
 /**
  * 文件文件上传 可上传一个或多个文件 返回数组格式
@@ -140,16 +141,34 @@ export async function getFileByIds(ctx: Koa.Context, ids: any, isUser?: boolean)
 // 返回文件格式
 function returnFileObj(ctx: Koa.Context, file: any, isUser?: boolean) {
   if (!file) return null
-  if (file.is_login && !ctx.user.id) return null
-  if (file.secret && ctx.user.id && ctx.user.id !== ctx.user.create_user) return null
+  // 判断是否需要登录可获取
+  if (file.is_login === 1 && !ctx.user.id) return null
+  // 判断是否私有照片
+  if (file.secret === 1 && (!ctx.user.id || ctx.user.id !== file.create_user)) return null
+  let filePath = global.CONFIG.BASE_URL + file.place + '/' + file.file_path
+  let queryParams = '?'
+  if (file.is_login === 1) { // 给两天有效期
+    let vt = global.dayjs().valueOf() + 2 * 24 * 60 * 60 * 1000
+    vt = encrypt(vt)
+    queryParams += `vt=${vt}`
+
+  }
+  if (file.secret === 1) { // 添加用户id
+    let si = ctx.user.id
+    si = encrypt(si)
+    if (queryParams === '?') queryParams += `si=${si}`
+    else queryParams += `&si=${si}`
+  }
+  if (queryParams !== '?') filePath += queryParams
   let fileObj: ObjectAny = {
     id: file.id,
     file_name: file.file_name,
     file_size: file.file_size,
     create_time: file.create_time,
     suffix: file.suffix,
-    file_path: global.CONFIG.BASE_URL + file.place + '/' + file.file_path,
+    file_path: filePath,
   }
   if (isUser) fileObj.create_user = file.create_user
   return fileObj
 }
+

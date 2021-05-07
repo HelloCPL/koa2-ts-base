@@ -184,13 +184,7 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
     global.requestStart = process.hrtime.bigint()
     let userId = null
     if (ctx.user) userId = ctx.user.id
-    console.log('');
-    console.log(`------------------- 请求开始 ${global.requestCount} -----------------`);
-    console.log(`请求接口：${ctx.method} ${ctx.url}`);
-    if (ctx.user && ctx.user.id)
-      console.log(`请求用户ID：${ctx.user.id}`);
-    console.log(`请求开始时间：${global.tools.getCurrentTime()}`);
-    console.log('');
+    global.Logger.request(ctx)
     await next()
   }
 }

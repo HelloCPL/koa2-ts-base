@@ -15,7 +15,7 @@ import { isExistUserOpenid, isBindingUserOpenid } from './convert'
 import { getFileById, getFileByIds } from '../file-operate'
 
 /**
- * 用户注册
+ * 1 用户注册
 */
 export async function doUserRegister(ctx: Koa.Context, next?: any) {
   let password = encrypt(ctx.data.header['word-info'])
@@ -32,7 +32,7 @@ export async function doUserRegister(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 用户登录
+ * 2 用户登录
  * 登录成功时生成 token 并返回
 */
 export async function doUserLogin(ctx: Koa.Context, next?: any) {
@@ -62,7 +62,7 @@ export async function doUserLogin(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 用户登录（小程序用户登录）
+ * 3 用户登录（小程序用户登录）
  * 获取 openID ，如果 openID 存在直接返回token，否则注册后返回token
 */
 export async function doUserLoginWeChat(ctx: Koa.Context, next?: any) {
@@ -88,7 +88,6 @@ export async function doUserLoginWeChat(ctx: Koa.Context, next?: any) {
     phone: res.phone,
     openid: wechatData.openid
   }
-  console.log(user);
   let token = await TokenGernerate(ctx, user)
   throw new global.Success({
     data: token
@@ -96,7 +95,7 @@ export async function doUserLoginWeChat(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 刷新 token 
+ * 4 刷新 token 
  * 如果 token 还在有效时间内直接返回，否则生成新的token
 */
 export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
@@ -124,7 +123,7 @@ export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 用户退出
+ * 5 用户退出
  * 清除 redis 的 token
 */
 export async function doUserExit(ctx: Koa.Context, next?: any) {
@@ -136,7 +135,7 @@ export async function doUserExit(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 获取指定用户信息(本用户或指定用户)
+ * 6 获取指定用户信息(本用户或指定用户)
 */
 export async function getUserInfoById(ctx: Koa.Context, next: any, id: any) {
   let sql = `SELECT * FROM users_info WHERE id = ?`
@@ -154,7 +153,7 @@ export async function getUserInfoById(ctx: Koa.Context, next: any, id: any) {
 }
 
 /**
- * 获取本用户信息(小程序用户，只能获取本用户信息，无法获取指定用户信息)
+ * 7 获取本用户信息(小程序用户，只能获取本用户信息，无法获取指定用户信息)
 */
 export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
   let sql = `SELECT *, t1.openid, t1.create_time FROM users_wechat_info t1 LEFT JOIN users_info t2 ON t1.openid = t2.openid WHERE t1.openid = ?`
@@ -170,7 +169,7 @@ export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
 }
 
 /**
- * 修改用户部分信息(本用户或指定用户)
+ * 8 修改用户部分信息(本用户或指定用户)
 */
 export async function doUserEditById(ctx: Koa.Context, next: any, id: any) {
   let userName = ctx.data.body.userName
@@ -192,7 +191,7 @@ export async function doUserEditById(ctx: Koa.Context, next: any, id: any) {
 }
 
 /**
- * 修改用户头像(仅本用户)
+ * 9 修改用户头像(仅本用户)
 */
 export async function doUserEditAvatarSelf(ctx: Koa.Context, next: any, file: any) {
   let id = ctx.user.id
@@ -207,4 +206,38 @@ export async function doUserEditAvatarSelf(ctx: Koa.Context, next: any, file: an
       message: '未找到该用户'
     })
   }
+}
+
+/**
+ * 10 关联用户账号(仅小程序用户)
+*/
+export async function doUserInfoAssociateWeChat(ctx: Koa.Context, next: any) {
+  let sql = `SELECT id, password FROM users_info WHERE phone = ?`
+  let phone = ctx.data.body.phone
+  const res: any = await query(sql, phone)
+  let dbPassword = await decrypt(res[0]['password'])
+  let password = await decrypt(ctx.data.header['word-info'])
+  if (password && dbPassword && password === dbPassword) {
+    let id = res[0]['id']
+    let openid = ctx.user.openid
+    let currentTime = global.tools.getCurrentTime()
+    let sql2 = 'UPDATE users_info SET openid = ?, update_time = ? WHERE id = ?;'
+    let data2 = [openid, currentTime, id]
+    const res2: any = await query(sql2, data2)
+    if (res2.affectedRows) {
+      // 返回新的token
+      let user = { id, phone, openid }
+      let token = await TokenGernerate(ctx, user)
+      throw new global.Success({
+        data: token
+      })
+    } else {
+      throw new global.ExceptionHttp({
+        message: '账号关联失败'
+      })
+    }
+  }
+  throw new global.ExceptionParameter({
+    message: '密码错误'
+  })
 }

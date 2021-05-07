@@ -8,6 +8,7 @@ import Koa from 'koa'
 import BasicAuth from 'basic-auth'
 import JWT from 'jsonwebtoken'
 import { clientSet, clientGet, clientDel } from '../redis'
+import { decrypt } from '../../utils/crypto'
 
 /**
  * 不校验路由集合
@@ -20,8 +21,32 @@ let unlessPath: string[] = []
 export function TokenAuth(unlessList: string[]) {
   unlessPath = unlessList
   return async (ctx: Koa.Context, next: any) => {
-    let flag = await isEscape(ctx)
-    if (!flag) {
+    let flag: number = 1 // 0 不校验 1 普通路由校验 2 静态资源权限校验
+    let path = getPath(ctx.request.url)
+    if (path.startsWith('/files/') || path.startsWith('/images/')) { // 静态资源校验权限
+      flag = 2
+      const { query } = require('../../db')
+      let lastIndex = path.lastIndexOf('/')
+      let filePath = path.substring(lastIndex + 1)
+      let sql = 'SELECT is_login as isLogin, secret, create_user as createUser FROM files_info WHERE file_path = ?'
+      const res = await query(sql, filePath)
+      if (res.length) {
+        let file = res[0]
+        await TokenVerifyStatic(file, ctx.request.url)
+      } else {
+        throw new global.ExceptionNotFound()
+      }
+    } else if (path.startsWith('favicon')) {
+      flag = 0
+    } else {
+      unlessPath.find(val => {
+        if (path === val) {
+          flag = 0
+          return true
+        }
+      })
+    }
+    if (flag === 1) { // 普通接口校验
       const tokenData: any = await TokenVerify(ctx)
       if (tokenData.code !== global.Code.success)
         throw new global.ExceptionHttp(tokenData)
@@ -32,34 +57,19 @@ export function TokenAuth(unlessList: string[]) {
 }
 
 /**
- * user 参数 {id, phone, openid}
- * 生成 token
- * redis 保存 token 结构 { id, phone, openid, delayTime(延迟更新时间), userAgent, terminal }
-*/
-export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
-  let currentTime: number = global.dayjs().unix()
-  user.delayTime = currentTime + global.CONFIG.EXPIRES_IN + global.CONFIG.DELAY
-  user.terminal = global.tools.getTerminal(ctx)
-  user.userAgent = ctx.request.header['user-agent']
-  let token = JWT.sign(user, global.CONFIG.SECRET_KEY, {
-    expiresIn: global.CONFIG.EXPIRES_IN
-  })
-  let key = getTokenKey(ctx, user)
-  await saveRedisToken(key, token)
-  return token
-}
-
-/**
+ * 普通路由校验方法
  * 校验 token 合法性 普通接口请求拦截
 */
 export async function TokenVerify(ctx: Koa.Context) {
   const tokenOrigin = BasicAuth(ctx.req)
-  if (!tokenOrigin || !tokenOrigin.name)
+  if (!tokenOrigin || !tokenOrigin.name) {
     return { message: 'token不存在', code: global.Code.forbidden }
+  }
   const token = tokenOrigin.name
   const tokenInfo: any = JWT.decode(token)
   try {
-    let tokenVerify = JWT.verify(token, global.CONFIG.SECRET_KEY)
+    let terminal = global.tools.getTerminal(ctx)
+    let tokenVerify = JWT.verify(token, global.CONFIG[terminal].SECRET_KEY)
     let key = getTokenKey(ctx, tokenVerify)
     let tokenRedis: any = await clientGet(key)
     let tokenRedisInfo: any = JWT.decode(token)
@@ -70,7 +80,7 @@ export async function TokenVerify(ctx: Koa.Context) {
     if (tokenRedis !== token)
       return { message: '您的账号已在其他设备登录！', code: global.Code.authFailed, token: token }
     // token的登录设备信息与当前设备信息不一致
-    if (tokenRedisInfo.userAgent !== ctx.request.header['user-agent'])
+    if (!global.CONFIG[terminal].ALLOW_MULTIPLE && tokenRedisInfo.userAgent !== ctx.request.header['user-agent'])
       return { message: '登录设备异常，为了安全请修改密码！', code: global.Code.authFailed, token: token }
   } catch (e) {
     let currentDateValue = global.dayjs().unix()
@@ -85,39 +95,47 @@ export async function TokenVerify(ctx: Koa.Context) {
 }
 
 /**
- * 是否不校验 返回 true 路由不校验
+ * 静态资源权限校验
 */
-async function isEscape(ctx: Koa.Context) {
-  let path = getPath(ctx.request.url)
-  let flag: boolean = false
-  // 如果是请求静态资源
-  if (path.startsWith('/files/') || path.startsWith('/images/')) {
-    // const { query } = require('../../db')
-    // let lastIndex = path.lastIndexOf('/')
-    // let filePath = path.substring(lastIndex + 1)
-    // let sql = 'SELECT is_login as isLogin, secret, create_user as createUser FROM files_info WHERE file_path = ?'
-    // const res = await query(sql, filePath)
-    // if (res.length) {
-    //   if (res[0]['isLogin'] == 0 || !global.CONFIG.VERIFY_CHECK_FILE) flag = true
-    //   if (res[0]['secret'] == 1) {
-    //     const tokenData: any = await TokenVerify(ctx)
-    //     if (tokenData.code !== global.Code.success)
-    //       throw new global.ExceptionHttp(tokenData)
-    //     if (res[0]['createUser'] !== tokenData.data.id)
-    //       throw new global.ExceptionForbidden({ message: '你没有权限访问该文件' })
-    flag = true
-    //   }
-    // } else
-    //   throw new global.ExceptionNotFound()
-  } else { // 普通路由
-    unlessPath.find(value => {
-      if (path === value) {
-        flag = true
-        return true
-      }
-    })
+async function TokenVerifyStatic(file: any, url: string) {
+  if (file.isLogin === 1) {
+    try {
+      let vt = getQueryParams(url, 'vt')
+      let targetTime = global.dayjs(Number(vt)).valueOf()
+      let currentTime = global.dayjs().valueOf()
+      if (!(currentTime < targetTime))
+        throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接已过期，无法查看' })
+    } catch (error) {
+      throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接已过期，无法查看' })
+    }
   }
-  return flag
+  if (file.secret === 1) {
+    try {
+      let si = getQueryParams(url, 'si')
+      if (si !== file.createUser)
+        throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接受保护，无权限查看' })
+    } catch (error) {
+      throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接受保护，无权限查看' })
+    }
+  }
+}
+
+/**
+ * user 参数 {id, phone, openid}
+ * 生成 token
+ * redis 保存 token 结构 { id, phone, openid, delayTime(延迟更新时间), userAgent, terminal }
+*/
+export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
+  let currentTime: number = global.dayjs().unix()
+  user.terminal = global.tools.getTerminal(ctx)
+  user.delayTime = currentTime + global.CONFIG[user.terminal].EXPIRES_IN + global.CONFIG.DELAY
+  user.userAgent = ctx.request.header['user-agent']
+  let token = JWT.sign(user, global.CONFIG[user.terminal].SECRET_KEY, {
+    expiresIn: global.CONFIG[user.terminal].EXPIRES_IN
+  })
+  let key = getTokenKey(ctx, user)
+  await saveRedisToken(key, token)
+  return token
 }
 
 /**
@@ -126,7 +144,7 @@ async function isEscape(ctx: Koa.Context) {
 export function getTokenKey(ctx: Koa.Context, user: any) {
   let key: any
   key = `${user.id}_${user.openid}_${user.terminal}`
-  if (global.CONFIG.ALLOW_MULTIPLE) key = key + user.userAgent
+  if (!global.CONFIG[user.terminal].ALLOW_MULTIPLE) key = key + user.userAgent
   return key
 }
 
@@ -144,4 +162,28 @@ function getPath(path: string) {
   if (index !== -1)
     path = path.substring(0, index)
   return path
+}
+
+// 获取静态资源指定参数
+function getQueryParams(url: string, key: string) {
+  let i = url.indexOf('?')
+  if (i === -1) return null
+  let queryParams = url.substring(i + 1)
+  let queryArr: any = queryParams.split('&')
+  queryArr = queryArr.map((val: any) => {
+    let index = val.indexOf('=')
+    if (index !== -1)
+      return {
+        key: val.substring(0, index),
+        value: val.substring(index + 1)
+      }
+  })
+  let keyValue: any = null
+  queryArr.find((item: any) => {
+    if (item.key === key) {
+      keyValue = decrypt(item.value)
+      return true
+    }
+  })
+  return keyValue
 }

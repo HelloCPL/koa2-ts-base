@@ -27,7 +27,7 @@ class InitManager {
     this.app.use(KoaBody({
       multipart: true,
       formidable: {
-        maxFieldsSize: 20 * 1024 * 1024 // 设置上传文件大小最大限制，默认20M
+        maxFieldsSize: 50 * 1024 * 1024 // 设置上传文件大小最大限制，默认50M
       }
     }))
     // 初始化全局方法或变量

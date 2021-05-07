@@ -27,6 +27,7 @@ const pool = MySQL.createPool({
 */
 export function query(sql: string, data?: any) {
   return new Promise((resolve, reject) => {
+    global.Logger.query(sql, data)
     pool.query(sql, data, async (err, results) => {
       if (err)
         return throwError(reject, '服务器发生错误：数据库查询语句出错', null, sql, data)
@@ -70,6 +71,7 @@ export function execTrans(sqlList: ObjectSQLParams[]) {
 function handleExceTransSQLParams(reject: any, connection: any, sqlList: ObjectSQLParams[]) {
   let queryArr: any[] = []
   sqlList.forEach(item => {
+    global.Logger.query(item.sql, item.data)
     let temp = function (cb: Function) {
       connection.query(item.sql, item.data, (err: any, results: any) => {
         if (err) {
@@ -85,12 +87,7 @@ function handleExceTransSQLParams(reject: any, connection: any, sqlList: ObjectS
 
 // 普通错误抛出异常
 function throwError(reject: any, message: string, err?: any, ...arg: any) {
-  console.log('');
-  console.log('------------- 数据库查询错误 start --------------');
-  console.log(message);
-  console.log(arg);
-  console.log('------------- 数据库查询错误 end --------------');
-  console.log('');
+  global.Logger.error(message, ...arg)
   reject(new global.ExceptionHttp({
     message,
     data: err
@@ -100,12 +97,7 @@ function throwError(reject: any, message: string, err?: any, ...arg: any) {
 // 事务查询发生错误时回滚并返回错误
 function handleExceTransRoolback(reject: any, connection: any, err: any, message: string, ...arg: any) {
   connection.roolback(() => {
-    console.log('');
-    console.log('------------- 数据库查询错误 start --------------');
-    console.log(message)
-    console.log(arg)
-    console.log('------------- 数据库查询错误 end --------------');
-    console.log('');
+  global.Logger.error(message, ...arg)
     connection.release()
     reject(new global.ExceptionHttp({
       message,

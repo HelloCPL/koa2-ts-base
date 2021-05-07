@@ -6,6 +6,7 @@
 
 import Redis from 'redis'
 import CONFIG from '../../config'
+import Logger from '../../global/logs'
 
 // 创建 redis 连接
 const redisClient = Redis.createClient(CONFIG.REDIS.PORT, CONFIG.REDIS.HOST)
@@ -17,14 +18,12 @@ redisClient.auth(CONFIG.REDIS.PASSWORD, () => {
 
 // 监听 redis 错误事件
 redisClient.on('error', err => {
-  console.log('----------- redis 发生错误 start -----------');
-  console.log(err);
-  console.log('----------- redis 发生错误 end -----------');
+  Logger.error('redis 发生错误', err, 'redis 发生错误')
 })
 
-// 保存 redis 值
+// 保存 redis 值s
 export const clientSet = (key: string, value: any) => {
-  if(!key) return 
+  if (!key) return
   return new Promise((resolve, reject) => {
     let newValue = handleValueToString(value)
     redisClient.set(key, newValue, (err: any) => {
@@ -36,7 +35,7 @@ export const clientSet = (key: string, value: any) => {
 
 // 获取 redis 值
 export const clientGet = (key: string) => {
-  if(!key) return 
+  if (!key) return
   return new Promise((resolve, reject) => {
     redisClient.get(key, (err: any, value) => {
       if (err) reject(err)
@@ -47,7 +46,7 @@ export const clientGet = (key: string) => {
 
 // 删除 redis 值
 export const clientDel = (key: string) => {
-  if(!key) return 
+  if (!key) return
   return new Promise((resolve, reject) => {
     redisClient.del(key, (err: any) => {
       if (err) reject(err)

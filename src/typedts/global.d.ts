@@ -32,6 +32,13 @@ interface RedisOption {
   PASSWORD: string
 }
 
+interface SecretOption {
+  SECRET_KEY: string,
+  EXPIRES_IN: number,
+  DELAY: number,
+  ALLOW_MULTIPLE: boolean,
+}
+
 interface WXOption {
   APP_ID: string,
   APP_SECRET: string
@@ -41,15 +48,15 @@ interface ConfigOption {
   ENV: string,
   PORT: number,
   HTTPS_PORT: number,
-  ALLOW_MULTIPLE: boolean,
-  VERIFY_CHECK_FILE: boolean,
   CRYPTOJS_KEY: string,
   CRYPTOJS_IV: string,
   DATABASE: DatabaseOption,
   REDIS: RedisOption,
-  SECRET_KEY: string,
-  EXPIRES_IN: number,
-  DELAY: number,
+  PC: SecretOption,
+  MANAGEMENT: SecretOption,
+  MOBILE: SecretOption,
+  APP: SecretOption,
+  WECHAT: SecretOption,
   WX: WXOption,
   BASE_URL: string,
   [x: string]: any
@@ -85,7 +92,15 @@ interface ParamsMessageOption {
   isInt: string,
   isFloat: string,
   isEmail: string,
-  [x:string]: any
+  [x: string]: any
+}
+
+interface LoggerOptions {
+  request: Function,
+  response: Function,
+  query: Function,
+  error: Function,
+  [x: string]: any
 }
 
 // 声明命名空间 合并 Global 接口，用于扩展global对象
@@ -104,6 +119,7 @@ declare namespace NodeJS {
     ExceptionForbidden: any,
     ExceptionAuthFailed: any,
     Success: any,
+    Logger: LoggerOptions,
     requestCount: number,
     requestStart: any,
     requestEnd: any,

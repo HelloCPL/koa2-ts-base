@@ -8,7 +8,6 @@ import Koa from 'koa'
 import Router from 'koa-router'
 import path from 'path'
 import glob from 'glob'
-// import TokenAuth from '../token-auth'
 import { TokenAuth } from '../token-auth'
 
 
@@ -61,7 +60,6 @@ export class Route {
       })
     }
     // 路由载入前进行token权限判断
-    // const auth = new TokenAuth(unlessPath)
     // this.app.use(auth.m)
     this.app.use(TokenAuth(unlessPath))
 

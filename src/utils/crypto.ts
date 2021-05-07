@@ -8,6 +8,7 @@ import CryptoJS from 'crypto-js'
 
 /**
  * crypto-js 加密方法
+ * password 参数 keyStr 加密字符串 ivStr 加密字符串
 */
 export function encrypt(password: any, keyStr?: string, ivStr?: string) {
   keyStr = keyStr ? keyStr : global.CONFIG.CRYPTOJS_KEY

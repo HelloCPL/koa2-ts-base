@@ -5,7 +5,7 @@
 */
 
 import Koa from 'koa'
-import { ExceptionHttp, Success } from '../../utils/http-exception'
+import { ExceptionHttp, Success } from '../../global/http-exception'
 
 export async function catchError(ctx: Koa.Context, next: any) {
   try {
@@ -17,27 +17,24 @@ export async function catchError(ctx: Koa.Context, next: any) {
     throwError(error, isExceptionHttp)
     ctx.status = global.Code.success
     if (isExceptionHttp) {
-      // 返回前打印请求结束信息
-      global.requestEnd = process.hrtime.bigint()
-      let costTime = global.requestEnd - global.requestStart
-      console.log('');
-      console.log(`请求结束时间：${global.tools.getCurrentTime()}`);
-      console.log(`请求花费时间：${costTime}纳秒（即${Number(costTime)/1e3}微秒 ${Number(costTime)/1e6}毫秒 ${Number(costTime)/1e9}秒）`);
-      console.log(`------------------- 请求结束 ${global.requestCount} -----------------`);
-      console.log('');
-      ctx.body = {
+      let data = {
         code: error.code,
         message: error.message,
         data: error.data,
         total: error.total
       }
+      if (error.code !== global.Code.locked)
+        global.Logger.response(ctx, data)
+      ctx.body = data
     } else {
-      ctx.body = {
+      let data = {
         code: global.Code.error,
         message: global.Code.error,
         data: null,
         total: 0
       }
+      global.Logger.response(ctx, data)
+      ctx.body = data
     }
   }
 }
@@ -47,17 +44,9 @@ function throwError(error: any, isExceptionHttp: boolean) {
   let isSuccess = error instanceof Success
   if (isSuccess) return
   if (isExceptionHttp) {
-    console.log('');
-    console.log('---------------- 已知错误 start -----------------');
-    console.log(error);
-    console.log('---------------- 已知错误 start -----------------');
-    console.log('');
+    global.Logger.error('已知错误', error, '已知错误')
   } else {
-    console.log('');
-    console.log('---------------- 未知错误 start -----------------');
-    console.log(error);
-    console.log('---------------- 未知错误 start -----------------');
-    console.log('');
+    global.Logger.error('未知错误', error, '未知错误')
   }
 }
 

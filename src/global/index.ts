@@ -6,11 +6,11 @@
 
 import _ from 'lodash'
 import dayjs from 'dayjs'
-import tools from '../utils/tools'
+import tools from './tools'
 import CONFIG from '../config'
 import { Message, Code, ParamsMessage } from './enums'
-import { ExceptionHttp, ExceptionParameter, ExceptionNotFound, ExceptionForbidden, ExceptionAuthFailed, Success } from '../utils/http-exception'
-
+import { ExceptionHttp, ExceptionParameter, ExceptionNotFound, ExceptionForbidden, ExceptionAuthFailed, Success } from './http-exception'
+import Logger from './logs'
 
 class InitGlobal {
   constructor() { }
@@ -29,6 +29,7 @@ class InitGlobal {
     global.ExceptionForbidden = ExceptionForbidden // 权限不足异常
     global.ExceptionAuthFailed = ExceptionAuthFailed // 授权失败异常
     global.Success = Success // 成功异常类
+    global.Logger = Logger // 成功异常类
     global.requestCount = 0 // 请求次数
     global.requestStart = process.hrtime.bigint() // 请求开始时间
     global.requestEnd = process.hrtime.bigint() // 请求结束时间

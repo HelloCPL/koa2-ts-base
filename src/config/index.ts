@@ -14,8 +14,6 @@ const InitConfig = () => {
         ENV: 'prod',
         PORT: 3000,
         HTTPS_PORT: 443,
-        ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
-        VERIFY_CHECK_FILE: true, // 是否对文件查看进行权限判断
         CRYPTOJS_KEY: 'thisisacryptojskey63', // crypto-js 加密字符
         CRYPTOJS_IV: 'thisisacryptojsiv63', // crypto-js 加密字符
         DATABASE: { // 数据库配置
@@ -31,9 +29,36 @@ const InitConfig = () => {
           PORT: 6379,
           PASSWORD: '123456',
         },
-        SECRET_KEY: 'PC', // token 秘钥
-        EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
-        DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+        PC: {
+          SECRET_KEY: 'PC', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        MANAGEMENT: {
+          SECRET_KEY: 'MANAGEMENT', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        MOBILE: {
+          SECRET_KEY: 'MOBILE', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        APP: {
+          SECRET_KEY: 'APP', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        WECHAT: {
+          SECRET_KEY: 'WECHAT', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24 * 10, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 24 * 3, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
         WX: { // 微信小程序信息配置
           APP_ID: 'wxbeb5ada6bf1d27ef',
           APP_SECRET: 'b11e05c65f0e9db81695f827b49edcb8',
@@ -47,8 +72,6 @@ const InitConfig = () => {
         ENV: 'dev',
         PORT: 3000,
         HTTPS_PORT: 443,
-        ALLOW_MULTIPLE: false, // 是否允许同一账号同时登陆多个设备
-        VERIFY_CHECK_FILE: true, // 是否对文件查看进行权限判断(私密文件必须登录)
         CRYPTOJS_KEY: 'thisisacryptojskey63', // crypto-js 加密字符
         CRYPTOJS_IV: 'thisisacryptojsiv63', // crypto-js 加密字符
         DATABASE: { // 数据库配置
@@ -65,9 +88,36 @@ const InitConfig = () => {
           PORT: 6379,
           PASSWORD: '123456',
         },
-        SECRET_KEY: 'PC', // token 秘钥
-        EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
-        DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+        PC: {
+          SECRET_KEY: 'PC', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        MANAGEMENT: {
+          SECRET_KEY: 'MANAGEMENT', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        MOBILE: {
+          SECRET_KEY: 'MOBILE', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        APP: {
+          SECRET_KEY: 'APP', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        WECHAT: {
+          SECRET_KEY: 'WECHAT', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24 * 10, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 24 * 3, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
         WX: { // 微信小程序信息配置
           APP_ID: 'wxbeb5ada6bf1d27ef',
           APP_SECRET: 'b11e05c65f0e9db81695f827b49edcb8',

@@ -31,6 +31,7 @@ export enum Code {
   success = 200,
   authLogin = 205, // 重新登录
   authRefresh = 206, // token 失效需重新刷新
+  locked = 423, // 静态资源被锁定，用于不返回日志信息
 }
 
 /**

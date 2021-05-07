@@ -354,3 +354,31 @@
     "total": 0
   }
 ```
+
+## ---------------- 小程序关联账号 ---------------------
+
+#### 简要描述
+
+- `wechat` 小程序关联账号，并返回新的token，前端需要重新更新 token 和 请求新的用户信息
+
+#### 请求
+
+- `post` `users/info/associate`
+
+#### 参数
+
+| 参数名 | 类型 | 是否必填 | 说明 |
+|:---:|:---:|:---:|:---:|
+| phone | string | 是 | 手机号 |
+| word-info | string | 是 | 放在headers请求头，加密后的密码 |
+
+#### 返回示例
+
+```
+  {
+    "code": 200,
+    "message": "操作成功",
+    "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjliODEzNzY3LTBlMmItNDZjNi1iMWRmLWU5NzA0NWEzYWMwNCIsInBob25lIjoiMTU4MjAyOTAwMDYiLCJvcGVuaWQiOm51bGwsImRlbGF5VGltZSI6MTYxNDk0MTE5NywidGVybWluYWwiOiJQQyIsInVzZXJBZ2VudCI6IlBvc3RtYW5SdW50aW1lLzcuMjYuOCIsImlhdCI6MTYxNDg0NzU5NywiZXhwIjoxNjE0OTMzOTk3fQ.HGA6DNRyFwazUQodhpbbtru2RtqVA5CBAo17VItrHVU",
+    "total": 0
+  }
+```
