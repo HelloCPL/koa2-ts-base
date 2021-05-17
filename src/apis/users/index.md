@@ -13,7 +13,7 @@
 | 参数名 | 类型 | 是否必填 | 说明 |
 |:---:|:---:|:---:|:---:|
 | phone | string | 是 | 手机号 |
-| word-info | string | 是 | 放在headers请求头，加密后的密码 |
+| word-info | string | 是 | 放在headers请求头，加密后的密码，暂不加密 |
 | userName | string | 否 | 用户昵称 |
 
 #### 返回示例
@@ -42,7 +42,7 @@
 | 参数名 | 类型 | 是否必填 | 说明 |
 |:---:|:---:|:---:|:---:|
 | phone | string | 是 | 手机号 |
-| word-info | string | 是 | 放在headers请求头，加密后的密码 |
+| word-info | string | 是 | 放在headers请求头，加密后的密码，暂不加密 |
 
 #### 返回示例
 

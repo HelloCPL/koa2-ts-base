@@ -67,7 +67,7 @@ export async function TokenVerify(ctx: Koa.Context) {
   }
   const token = tokenOrigin.name
   const tokenInfo: any = JWT.decode(token)
-  try {
+    try {
     let terminal = global.tools.getTerminal(ctx)
     let tokenVerify = JWT.verify(token, global.CONFIG[terminal].SECRET_KEY)
     let key = getTokenKey(ctx, tokenVerify)
@@ -128,7 +128,7 @@ async function TokenVerifyStatic(file: any, url: string) {
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
   let currentTime: number = global.dayjs().unix()
   user.terminal = global.tools.getTerminal(ctx)
-  user.delayTime = currentTime + global.CONFIG[user.terminal].EXPIRES_IN + global.CONFIG.DELAY
+  user.delayTime = currentTime + global.CONFIG[user.terminal].EXPIRES_IN + global.CONFIG[user.terminal].DELAY
   user.userAgent = ctx.request.header['user-agent']
   let token = JWT.sign(user, global.CONFIG[user.terminal].SECRET_KEY, {
     expiresIn: global.CONFIG[user.terminal].EXPIRES_IN
