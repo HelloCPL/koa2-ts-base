@@ -27,6 +27,7 @@ export function encrypt(password: any, keyStr?: string, ivStr?: string) {
  * crypto-js 解密方法
 */
 export function decrypt(password: any, keyStr?: string, ivStr?: string) {
+  if (!password) return password
   keyStr = keyStr ? keyStr : global.CONFIG.CRYPTOJS_KEY
   ivStr = ivStr ? ivStr : global.CONFIG.CRYPTOJS_IV
   let key = CryptoJS.enc.Utf8.parse(keyStr)
