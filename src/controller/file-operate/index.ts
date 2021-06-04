@@ -20,11 +20,11 @@ export async function doFileUpload(ctx: Koa.Context, next?: any) {
   if (global._.isArray(file)) {
     for (let value of file) {
       const obj = await writeFile(ctx, value)
-      fileList.push(obj)
+      if (obj) fileList.push(obj)
     }
   } else {
     const obj = await writeFile(ctx, file)
-    fileList.push(obj)
+    if (obj) fileList.push(obj)
   }
   throw new global.Success({
     data: fileList
@@ -77,27 +77,22 @@ export async function doFileUploadImgOne(ctx: Koa.Context, next?: any) {
 async function writeFile(ctx: Koa.Context, file: any, place?: string) {
   place = place || 'files'
   const secret = ctx.request.query.secret || '0'
+  const isLogin = ctx.request.query.isLogin || '1'
   const fileName = global.tools.getFileRandomName(file.name)
   // 先写入数据库
   let id = global.tools.getUuId()
   let createTime = global.tools.getCurrentTime()
   let suffix = getSuffix(file.name)
-  let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, create_user) VALUES(?,?,?,?,?,?,?,?)`
-  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, ctx.user.id]
+  let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, is_login, create_user) VALUES(?,?,?,?,?,?,?,?,?)`
+  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, ctx.user.id]
   await query(sql, data)
   // 再创建可读流
   const reader = fs.createReadStream(file.path)
   const fileSavePath = path.join(__dirname, '../../../static/files', fileName)
   const upStream = fs.createWriteStream(fileSavePath)
   reader.pipe(upStream)
-  return {
-    id: id,
-    filePath: global.CONFIG.BASE_URL + place + '/' + fileName,
-    fileName: file.name,
-    fileSize: file.size,
-    createTime,
-    suffix,
-  }
+  const targetFile = await getFileById(ctx, id)
+  return targetFile
 }
 
 // 获取后缀名
