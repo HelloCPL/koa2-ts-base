@@ -32,7 +32,7 @@ export function TokenAuth(unlessList: string[]) {
       const res = await query(sql, filePath)
       if (res.length) {
         let file = res[0]
-        await TokenVerifyStatic(file, ctx.request.url)
+        await TokenVerifyStatic(ctx, file)
       } else {
         throw new global.ExceptionNotFound()
       }
@@ -67,7 +67,7 @@ export async function TokenVerify(ctx: Koa.Context) {
   }
   const token = tokenOrigin.name
   const tokenInfo: any = JWT.decode(token)
-    try {
+  try {
     let terminal = global.tools.getTerminal(ctx)
     let tokenVerify = JWT.verify(token, global.CONFIG[terminal].SECRET_KEY)
     let key = getTokenKey(ctx, tokenVerify)
@@ -97,25 +97,31 @@ export async function TokenVerify(ctx: Koa.Context) {
 /**
  * 静态资源权限校验
 */
-async function TokenVerifyStatic(file: any, url: string) {
+async function TokenVerifyStatic(ctx: Koa.Context, file: any) {
+  let url = ctx.request.url
+  const tokenData: any = await TokenVerify(ctx)
+  let isLogin = tokenData.code === 200 && tokenData.data && tokenData.data.id
   if (file.isLogin === 1) {
+    if (isLogin) return
     try {
       let vt = getQueryParams(url, 'vt')
       let targetTime = global.dayjs(Number(vt)).valueOf()
       let currentTime = global.dayjs().valueOf()
       if (!(currentTime < targetTime))
-        throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接已过期，无法查看' })
+        throw new global.ExceptionAuthFailed({ code: 423, message: '链接已过期，无法查看' })
     } catch (error) {
-      throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接已过期，无法查看' })
+      throw new global.ExceptionAuthFailed({ code: 423, message: '链接已过期，无法查看' })
     }
   }
+  let isSecret = tokenData.code === 200 && tokenData.data && tokenData.data.id === file.createUser
   if (file.secret === 1) {
+    if (isSecret) return
     try {
       let si = getQueryParams(url, 'si')
       if (si !== file.createUser)
-        throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接受保护，无权限查看' })
+        throw new global.ExceptionAuthFailed({ code: 423, message: '链接受保护，无权限查看' })
     } catch (error) {
-      throw new global.ExceptionAuthFailed({ code: 423, message: '图片链接受保护，无权限查看' })
+      throw new global.ExceptionAuthFailed({ code: 423, message: '链接受保护，无权限查看' })
     }
   }
 }
