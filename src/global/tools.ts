@@ -34,6 +34,7 @@ function sureIsArray(arr: any): any[] {
  * 获取请求终端
 */
 function getTerminal(ctx: Koa.Context) {
+  if (ctx.request.header['word-terminal']) return ctx.request.header['word-terminal'].toLocaleUpperCase()
   let method = ctx.request.url
   return method.substring(1, method.indexOf('/', 1)).toLocaleUpperCase()
 }
@@ -108,7 +109,7 @@ function getCurrentTime(date: any) {
 export default {
   toPath,
   sureIsArray, // 确保返回的为数组
-  getTerminal, 
+  getTerminal,
   getUserAgent,
   toCamelCase,
   isObject,
