@@ -23,7 +23,7 @@ export function TokenAuth(unlessList: string[]) {
   return async (ctx: Koa.Context, next: any) => {
     let flag: number = 1 // 0 不校验 1 普通路由校验 2 静态资源权限校验
     let path = getPath(ctx.request.url)
-    if (path.startsWith('/files/') || path.startsWith('/images/')) { // 静态资源校验权限
+    if (path.startsWith('/files/') || path.startsWith('/images/') || path.startsWith('/editors/')) { // 静态资源校验权限
       flag = 2
       const { query } = require('../../db')
       let lastIndex = path.lastIndexOf('/')

@@ -6,7 +6,7 @@
 
 import Koa from 'koa'
 import { Prefix, Get, Post, Required, Convert } from '../../middlewares/router'
-import { doFileUpload, doFileDelete } from '../../controller/file-operate'
+import { doFileUpload, doFileUploadEditor, doFileDelete } from '../../controller/file-operate'
 import { doFileDeleteIsPower } from '../../controller/file-operate/convert'
 
 @Prefix('file')
@@ -17,6 +17,13 @@ export default class FileController {
   @Post('upload')
   async doFileUpload(ctx: Koa.Context, next: any) {
     await doFileUpload(ctx, next)
+  }
+
+  // 文件文件上传 可上传一个或多个文件 返回数组格式
+  // 可选参数 secret 是否设为私密
+  @Post('upload/editor')
+  async doFileUploadEditor(ctx: Koa.Context, next: any) {
+    await doFileUploadEditor(ctx, next)
   }
 
   // 文件删除 传 ids 可删除多个 用逗号隔开

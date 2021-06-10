@@ -32,6 +32,28 @@ export async function doFileUpload(ctx: Koa.Context, next?: any) {
 }
 
 /**
+ * 富文本文件文件上传 可上传一个或多个文件 返回数组格式
+*/
+export async function doFileUploadEditor(ctx: Koa.Context, next?: any) {
+  ctx.request.query.checkValidTime = 36500
+  const files: any = ctx.request.files
+  const file: any = files.file
+  const fileList = []
+  if (global._.isArray(file)) {
+    for (let value of file) {
+      const obj = await writeFile(ctx, value, 'editors')
+      if (obj) fileList.push(obj)
+    }
+  } else {
+    const obj = await writeFile(ctx, file, 'editors')
+    if (obj) fileList.push(obj)
+  }
+  throw new global.Success({
+    data: fileList
+  })
+}
+
+/**
  * 文件删除 传 ids 可删除多个 用逗号隔开
 */
 export async function doFileDelete(ctx: Koa.Context, next?: any) {
@@ -78,17 +100,18 @@ async function writeFile(ctx: Koa.Context, file: any, place?: string) {
   place = place || 'files'
   const secret = ctx.request.query.secret || '0'
   const isLogin = ctx.request.query.isLogin || '1'
+  const checkValidTime = ctx.request.query.checkValidTime || 3
   const fileName = global.tools.getFileRandomName(file.name)
   // 先写入数据库
   let id = global.tools.getUuId()
   let createTime = global.tools.getCurrentTime()
   let suffix = getSuffix(file.name)
-  let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, is_login, create_user) VALUES(?,?,?,?,?,?,?,?,?)`
-  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, ctx.user.id]
+  let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, is_login, create_user, check_valid_time, place) VALUES(?,?,?,?,?,?,?,?,?,?,?)`
+  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, ctx.user.id, checkValidTime, place]
   await query(sql, data)
   // 再创建可读流
   const reader = fs.createReadStream(file.path)
-  const fileSavePath = path.join(__dirname, '../../../static/files', fileName)
+  const fileSavePath = path.join(__dirname, `../../../static/${place}`, fileName)
   const upStream = fs.createWriteStream(fileSavePath)
   reader.pipe(upStream)
   const targetFile = await getFileById(ctx, id)
@@ -143,7 +166,8 @@ function returnFileObj(ctx: Koa.Context, file: any, isUser?: boolean) {
   let filePath = global.CONFIG.BASE_URL + file.place + '/' + file.file_path
   let queryParams = '?'
   if (file.is_login === 1) { // 给两天有效期
-    let vt = global.dayjs().valueOf() + 2 * 24 * 60 * 60 * 1000
+    let day = file.check_valid_time || 3
+    let vt = global.dayjs().valueOf() + day * 24 * 60 * 60 * 1000
     vt = encrypt(vt)
     queryParams += `vt=${vt}`
 
