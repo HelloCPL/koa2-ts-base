@@ -5,14 +5,15 @@
 */
 
 import CryptoJS from 'crypto-js'
+import CONFIG from '../config/index'
 
 /**
  * crypto-js 加密方法
  * password 参数 keyStr 加密字符串 ivStr 加密字符串
 */
 export function encrypt(password: any, keyStr?: string, ivStr?: string) {
-  keyStr = keyStr ? keyStr : global.CONFIG.CRYPTOJS_KEY
-  ivStr = ivStr ? ivStr : global.CONFIG.CRYPTOJS_IV
+  keyStr = keyStr ? keyStr : CONFIG.CRYPTOJS_KEY
+  ivStr = ivStr ? ivStr : CONFIG.CRYPTOJS_IV
   let key = CryptoJS.enc.Utf8.parse(keyStr)
   let iv = CryptoJS.enc.Utf8.parse(ivStr)
   let srcs = CryptoJS.enc.Utf8.parse(password);
@@ -28,8 +29,8 @@ export function encrypt(password: any, keyStr?: string, ivStr?: string) {
 */
 export function decrypt(password: any, keyStr?: string, ivStr?: string) {
   if (!password) return password
-  keyStr = keyStr ? keyStr : global.CONFIG.CRYPTOJS_KEY
-  ivStr = ivStr ? ivStr : global.CONFIG.CRYPTOJS_IV
+  keyStr = keyStr ? keyStr : CONFIG.CRYPTOJS_KEY
+  ivStr = ivStr ? ivStr : CONFIG.CRYPTOJS_IV
   let key = CryptoJS.enc.Utf8.parse(keyStr)
   let iv = CryptoJS.enc.Utf8.parse(ivStr)
   let descyptStr = CryptoJS.AES.decrypt(password, key, {

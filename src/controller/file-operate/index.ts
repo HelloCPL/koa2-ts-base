@@ -9,6 +9,7 @@ import fs from 'fs'
 import path from 'path'
 import { query, execTrans } from '../../db'
 import { encrypt } from '../../utils/crypto'
+import CONFIG from '../../config/index'
 
 /**
  * 文件文件上传 可上传一个或多个文件 返回数组格式
@@ -163,7 +164,7 @@ function returnFileObj(ctx: Koa.Context, file: any, isUser?: boolean) {
   if (file.is_login === 1 && !ctx.user.id) return null
   // 判断是否私有照片
   if (file.secret === 1 && (!ctx.user.id || ctx.user.id !== file.create_user)) return null
-  let filePath = global.CONFIG.BASE_URL + file.place + '/' + file.file_path
+  let filePath = CONFIG.BASE_URL + file.place + '/' + file.file_path
   let queryParams = '?'
   if (file.is_login === 1) { // 给两天有效期
     let day = file.check_valid_time || 3

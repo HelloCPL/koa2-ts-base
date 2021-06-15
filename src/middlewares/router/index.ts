@@ -9,6 +9,7 @@ import Koa from 'koa'
 import { symbolRoutePrefix, Route } from './Route';
 import { ValidatorParameters } from '../../utils/validator'
 import { LinValidator } from '../../lib/lin-validator'
+import Logger from '../../utils/logs'
 
 // 记录总数
 export let requestCount: number = 0
@@ -184,7 +185,7 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
     global.requestStart = process.hrtime.bigint()
     let userId = null
     if (ctx.user) userId = ctx.user.id
-    global.Logger.request(ctx)
+    Logger.request(ctx)
     await next()
   }
 }

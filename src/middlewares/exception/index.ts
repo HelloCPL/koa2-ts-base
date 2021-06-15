@@ -6,13 +6,15 @@
 
 import Koa from 'koa'
 import { ExceptionHttp, Success } from '../../global/http-exception'
+// import CONFIG from '../../config/index'
+import Logger from '../../utils/logs'
 
 export async function catchError(ctx: Koa.Context, next: any) {
   try {
     await next()
   } catch (error) {
     const isExceptionHttp = error instanceof ExceptionHttp
-    // const isDev = global.CONFIG.ENV === 'dev'
+    // const isDev = CONFIG.ENV === 'dev'
     // if (isDev && !isExceptionHttp) throw error
     throwError(error, isExceptionHttp)
     ctx.status = global.Code.success
@@ -24,7 +26,7 @@ export async function catchError(ctx: Koa.Context, next: any) {
         total: error.total
       }
       if (error.code !== global.Code.locked)
-        global.Logger.response(ctx, data)
+        Logger.response(ctx, data)
       ctx.body = data
     } else {
       let data = {
@@ -33,7 +35,7 @@ export async function catchError(ctx: Koa.Context, next: any) {
         data: null,
         total: 0
       }
-      global.Logger.response(ctx, data)
+      Logger.response(ctx, data)
       ctx.body = data
     }
   }
@@ -44,9 +46,9 @@ function throwError(error: any, isExceptionHttp: boolean) {
   let isSuccess = error instanceof Success
   if (isSuccess) return
   if (isExceptionHttp) {
-    global.Logger.error('已知错误', error, '已知错误')
+    Logger.error('已知错误', error, '已知错误')
   } else {
-    global.Logger.error('未知错误', error, '未知错误')
+    Logger.error('未知错误', error, '未知错误')
   }
 }
 

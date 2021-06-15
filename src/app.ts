@@ -7,6 +7,7 @@
 import Koa from 'koa'
 import http from 'http'
 import InitManager from './init'
+import CONFIG from './config/index'
 
 const app = new Koa()
 
@@ -14,6 +15,6 @@ const app = new Koa()
 new InitManager(app)
 
 // 设置监听
-http.createServer(app.callback()).listen(global.CONFIG.PORT, () => {
-  console.log(`${global.CONFIG.BASE_URL} is running...\n`);
+http.createServer(app.callback()).listen(CONFIG.PORT, () => {
+  console.log(`${CONFIG.BASE_URL} is running...\n`);
 })

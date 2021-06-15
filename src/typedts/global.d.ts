@@ -44,24 +44,6 @@ interface WXOption {
   APP_SECRET: string
 }
 
-interface ConfigOption {
-  ENV: string,
-  PORT: number,
-  HTTPS_PORT: number,
-  CRYPTOJS_KEY: string,
-  CRYPTOJS_IV: string,
-  DATABASE: DatabaseOption,
-  REDIS: RedisOption,
-  PC: SecretOption,
-  MANAGEMENT: SecretOption,
-  MOBILE: SecretOption,
-  APP: SecretOption,
-  WECHAT: SecretOption,
-  WX: WXOption,
-  BASE_URL: string,
-  [x: string]: any
-}
-
 interface MessageOption {
   error: string,
   parameter: string,
@@ -95,21 +77,12 @@ interface ParamsMessageOption {
   [x: string]: any
 }
 
-interface LoggerOptions {
-  request: Function,
-  response: Function,
-  query: Function,
-  error: Function,
-  [x: string]: any
-}
-
 // 声明命名空间 合并 Global 接口，用于扩展global对象
 declare namespace NodeJS {
   interface Global {
     _: any,
     dayjs: any,
     tools: ToolsOptions,
-    CONFIG: ConfigOption,
     Message: MessageOption,
     Code: CodeOption,
     ParamsMessage: ParamsMessageOption,
@@ -119,7 +92,6 @@ declare namespace NodeJS {
     ExceptionForbidden: any,
     ExceptionAuthFailed: any,
     Success: any,
-    Logger: LoggerOptions,
     requestCount: number,
     requestStart: any,
     requestEnd: any,

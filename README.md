@@ -50,7 +50,6 @@
 ```
   global._ // 挂载 lodash，如 global._.isArray([1,2])
   global.tools // 常用方法集合，如 global.tools.toPath('/user', 'list')
-  global.CONFIG // 配置，如 global.CONFIG.PORT
   global.Message // 返回提示信息，如 global.Message.error
   global.Code // 返回状态吗，如 global.Code.error
   global.ParamsMessage // 参数提示信息，如 global.ParamsMessage.isLength

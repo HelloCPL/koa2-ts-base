@@ -6,7 +6,7 @@
 
 import Redis from 'redis'
 import CONFIG from '../../config'
-import Logger from '../../global/logs'
+import Logger from '../../utils/logs'
 
 // 创建 redis 连接
 const redisClient = Redis.createClient(CONFIG.REDIS.PORT, CONFIG.REDIS.HOST)
