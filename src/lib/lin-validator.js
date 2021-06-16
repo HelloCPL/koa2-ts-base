@@ -11,7 +11,7 @@ import validator from 'validator'
 import { findMembers } from '../utils/find-members'
 
 const ParameterException = global.ExceptionParameter
-const { get, last, set, cloneDeep } = global._
+const { get, last, set, cloneDeep } = 'lodash'
 
 
 export class LinValidator {
@@ -79,7 +79,7 @@ export class LinValidator {
       }
     }
     if (errorMsgs.length != 0) {
-      throw new ParameterException({message: errorMsgs})
+      throw new ParameterException({ message: errorMsgs })
     }
     ctx.v = this
     return this

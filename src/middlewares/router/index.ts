@@ -9,6 +9,7 @@ import Koa from 'koa'
 import { symbolRoutePrefix, Route } from './Route';
 import { ValidatorParameters } from '../../utils/validator'
 import { LinValidator } from '../../lib/lin-validator'
+import _ from 'lodash'
 
 // 记录总数
 export let requestCount: number = 0
@@ -160,7 +161,7 @@ export function Convert(middleware: any) {
  * 统一路由请求处理方法
 */
 function router(target: any, name: string, descriptor: PropertyDescriptor, config: ObjectRequired) {
-  if (!(global._.isArray(config.terminals) && config.terminals?.length))
+  if (!(_.isArray(config.terminals) && config.terminals?.length))
     config.terminals = ['management', 'pc', 'wechat', 'mobile', 'app']
   Route.__DecoratedRouters.set({
     target: target,
@@ -216,7 +217,7 @@ function ValidatorRequiredParams(params: any[]) {
 */
 // function decorate(handleDescriptor: Function, entryArgs: Array<Function>) {
 //   // @ts-ignore
-//   if (isDescriptor(global._.last(entryArgs))) return handleDescriptor(entryArgs)
+//   if (isDescriptor(_.last(entryArgs))) return handleDescriptor(entryArgs)
 //   else return handleDescriptor(...arguments, ...entryArgs)
 // }
 

@@ -10,6 +10,7 @@ const ENV = process.argv[2]
 
 import log4js from 'log4js'
 import logsConfig from '../config/logs'
+import _ from 'lodash'
 
 // 加载配置文件
 log4js.configure(logsConfig)
@@ -57,7 +58,7 @@ let formatText = {
   // 数据库查询
   query: function (sql: any, data?: any) {
     let logText = ''
-    if (data && global._.isArray(data))
+    if (data && _.isArray(data))
       data = JSON.stringify(data)
     logText += `\n[查询数据库日志信息开始]`
     logText += `\n  [SQL]: ${sql}`
@@ -73,7 +74,7 @@ let formatText = {
     logText += `\n!!!!!!!!!!!!!!!!!!!! 错误日志信息开始 ${global.requestCount} !!!!!!!!!!!!!!!!!!!!`
     for (let i = 0, len = arg.length; i < len; i++) {
       let info = arg[i]
-      if (global._.isObject(info)) info = JSON.stringify(info)
+      if (_.isObject(info)) info = JSON.stringify(info)
       logText += `\n  [errorInfoLog]: ${info}`
     }
     logText += `\n!!!!!!!!!!!!!!!!!!!! 错误日志信息结束 ${global.requestCount} !!!!!!!!!!!!!!!!!!!!\n`

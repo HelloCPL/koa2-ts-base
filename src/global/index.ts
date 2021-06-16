@@ -4,8 +4,6 @@
  * @update 2021-01-19 15:06:23
 */
 
-import _ from 'lodash'
-import dayjs from 'dayjs'
 import tools from './tools'
 import CONFIG from '../config'
 import { Message, Code, ParamsMessage } from './enums'
@@ -16,8 +14,6 @@ class InitGlobal {
   constructor() { }
 
   init() {
-    global._ = _ // lodash
-    global.dayjs = dayjs // 时间处理方法
     global.tools = tools // 常用方法集合
     global.CONFIG = CONFIG // 配置
     global.Message = Message // 返回提示信息

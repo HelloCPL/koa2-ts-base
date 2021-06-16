@@ -9,6 +9,7 @@ import BasicAuth from 'basic-auth'
 import JWT from 'jsonwebtoken'
 import { clientSet, clientGet, clientDel } from '../redis'
 import { decrypt } from '../../utils/crypto'
+import dayjs from 'dayjs'
 
 /**
  * 不校验路由集合
@@ -83,7 +84,7 @@ export async function TokenVerify(ctx: Koa.Context) {
     if (!global.CONFIG[terminal].ALLOW_MULTIPLE && tokenRedisInfo.userAgent !== ctx.request.header['user-agent'])
       return { message: '登录设备异常，为了安全请修改密码！', code: global.Code.authFailed, token: token }
   } catch (e) {
-    let currentDateValue = global.dayjs().unix()
+    let currentDateValue = dayjs().unix()
     // token已过期，但可刷新
     if (tokenInfo && currentDateValue < tokenInfo.delayTime)
       return { message: 'token已过期，请重新刷新', code: global.Code.authRefresh, token: token }
@@ -105,8 +106,8 @@ async function TokenVerifyStatic(ctx: Koa.Context, file: any) {
     if (isLogin) return
     try {
       let vt = getQueryParams(url, 'vt')
-      let targetTime = global.dayjs(Number(vt)).valueOf()
-      let currentTime = global.dayjs().valueOf()
+      let targetTime = dayjs(Number(vt)).valueOf()
+      let currentTime = dayjs().valueOf()
       if (!(currentTime < targetTime))
         throw new global.ExceptionAuthFailed({ code: 423, message: '链接已过期，无法查看' })
     } catch (error) {
@@ -132,7 +133,7 @@ async function TokenVerifyStatic(ctx: Koa.Context, file: any) {
  * redis 保存 token 结构 { id, phone, openid, delayTime(延迟更新时间), userAgent, terminal }
 */
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
-  let currentTime: number = global.dayjs().unix()
+  let currentTime: number = dayjs().unix()
   user.terminal = global.tools.getTerminal(ctx)
   user.delayTime = currentTime + global.CONFIG[user.terminal].EXPIRES_IN + global.CONFIG[user.terminal].DELAY
   user.userAgent = ctx.request.header['user-agent']

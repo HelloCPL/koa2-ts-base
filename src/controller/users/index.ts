@@ -174,12 +174,13 @@ export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
 export async function doUserEditById(ctx: Koa.Context, next: any, id: any) {
   let userName = ctx.data.body.userName
   let sex = ctx.data.body.sex || 0
-  let birthday = ctx.data.body.birthday
+  let birthday = global.tools.formatDate(ctx.data.body.birthday)
   let address = ctx.data.body.address
   let professional = ctx.data.body.professional
+  let remarks = ctx.data.body.remarks
   let currentTime = global.tools.getCurrentTime()
-  let sql = 'UPDATE users_info SET user_name = ?, sex = ?, birthday = ?, address = ?, professional = ?, update_time = ? WHERE id = ?;'
-  let data = [userName, sex, birthday, address, professional, currentTime, id]
+  let sql = 'UPDATE users_info SET user_name = ?, sex = ?, birthday = ?, address = ?, professional = ?, remarks = ?, update_time = ? WHERE id = ?;'
+  let data = [userName, sex, birthday, address, professional, remarks, currentTime, id]
   let res: any = await query(sql, data)
   if (res.affectedRows) {
     throw new global.Success()

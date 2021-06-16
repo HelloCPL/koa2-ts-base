@@ -175,8 +175,9 @@
           "filePath": "http://localhost:3000/files/55268270-7fd9-11eb-ad4e-530e657b08cb.jpg"
       },
       "openid": null,
-      "updateTime": "2021-03-08 09:49:49"
-      "createTime": "2021-03-08 09:49:49"
+      "updateTime": "2021-03-08 09:49:49",
+      "createTime": "2021-03-08 09:49:49",
+      "remarks": ""
     },
     "total": 0
   }
@@ -253,8 +254,9 @@
       "professional": null,
       "headImg": null,
       "openid": null,
-      "updateTime": "2021-03-08 09:49:49"
-      "createTime": "2021-03-08 09:49:49"
+      "updateTime": "2021-03-08 09:49:49",
+      "createTime": "2021-03-08 09:49:49",
+      "remarks": ""
     },
     "total": 0
   }
@@ -275,10 +277,11 @@
 | 参数名 | 类型 | 是否必填 | 说明 |
 |:---:|:---:|:---:|:---:|
 | userName | string | 否 | 用户昵称 |
-| usersexName | tinyint | 否 | 用户性别 1 男 2 女 0 未知 |
+| sex | tinyint | 否 | 用户性别 1 男 2 女 0 未知 |
 | birthday | string | 否 | 用户生日（时间格式字符串） |
 | address | string | 否 | 用户地址 |
 | professional | string | 否 | 用户职位 |
+| remarks | string | 否 | 备注 |
 
 #### 返回示例
 
@@ -307,10 +310,11 @@
 |:---:|:---:|:---:|:---:|
 | id | string | 是 | 用户 id |
 | userName | string | 否 | 用户昵称 |
-| usersexName | tinyint | 否 | 用户性别 1 男 2 女 0 未知 |
+| sex | tinyint | 否 | 用户性别 1 男 2 女 0 未知 |
 | birthday | string | 否 | 用户生日（时间格式字符串） |
 | address | string | 否 | 用户地址 |
 | professional | string | 否 | 用户职位 |
+| remarks | string | 否 | 备注 |
 
 #### 返回示例
 

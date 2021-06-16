@@ -6,6 +6,8 @@
 
 import Koa from 'koa'
 import { v1 as uuidv1, v4 as uuidv4 } from 'uuid'
+import _ from 'lodash'
+import dayjs from 'dayjs'
 
 /**
  * 返回格式后的路径
@@ -55,25 +57,25 @@ function toCamelCase(results: any) {
     let newObj: ObjectAny = {}
     for (let key in obj) {
       if (isObject(obj[key]))
-        newObj[global._.camelCase(key)] = toObjectKey(obj[key])
-      else if (global._.isArray(obj[key]))
-        newObj[global._.camelCase(key)] = toArrayKey(obj[key])
+        newObj[_.camelCase(key)] = toObjectKey(obj[key])
+      else if (_.isArray(obj[key]))
+        newObj[_.camelCase(key)] = toArrayKey(obj[key])
       else
-        newObj[global._.camelCase(key)] = obj[key]
+        newObj[_.camelCase(key)] = obj[key]
     }
     return newObj
   }
   // 处理数组 key
   let toArrayKey = (arr: any[]) => {
     for (let i = 0, len = arr.length; i < len; i++) {
-      if (global._.isArray(arr[i]))
+      if (_.isArray(arr[i]))
         arr[i] = toArrayKey(arr[i])
       else if (isObject(arr[i]))
         arr[i] = toObjectKey(arr[i])
     }
     return arr
   }
-  if (global._.isArray(results))
+  if (_.isArray(results))
     return toArrayKey(results)
   else if (isObject(results))
     return toObjectKey(results)
@@ -84,7 +86,7 @@ function toCamelCase(results: any) {
  * 判断是否为对象，补充 lodash 不能识别数据库查询返回的数据是否为对象的问题
 */
 function isObject(obj: any) {
-  return global._.isPlainObject(obj) || (typeof obj === 'object' && toString.call(obj) === '[object Object]')
+  return _.isPlainObject(obj) || (typeof obj === 'object' && toString.call(obj) === '[object Object]')
 }
 
 // 生成唯一id标识
@@ -103,7 +105,17 @@ function getFileRandomName(fileName: string) {
 // 返回当前时间（或指定时间）
 function getCurrentTime(date: any) {
   date = date || new Date()
-  return global.dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+}
+
+// 格式化日期
+function formatDate(date: any, format = 'YYYY-MM-DD HH:mm:ss') {
+  if (!date) return null
+  try {
+    return dayjs(date).format(format)
+  } catch (e) {
+    return null
+  }
 }
 
 export default {
@@ -115,5 +127,6 @@ export default {
   isObject,
   getUuId,
   getFileRandomName,
-  getCurrentTime
+  getCurrentTime,
+  formatDate
 }

@@ -7,6 +7,7 @@
 import Redis from 'redis'
 import CONFIG from '../../config'
 import Logger from '../../global/logs'
+import _ from 'lodash'
 
 // 创建 redis 连接
 const redisClient = Redis.createClient(CONFIG.REDIS.PORT, CONFIG.REDIS.HOST)
@@ -57,7 +58,7 @@ export const clientDel = (key: string) => {
 
 // 处理数据 JSON 格式字符串
 function handleValueToString(val: any) {
-  if (global._.isArray(val) || global._.isPlainObject(val))
+  if (_.isArray(val) || _.isPlainObject(val))
     return JSON.stringify(val)
   return val.toString()
 }

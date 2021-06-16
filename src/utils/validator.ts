@@ -6,6 +6,7 @@
 */
 
 import { Rule, LinValidator } from '../lib/lin-validator'
+import _ from 'lodash'
 
 class ValidatorParam extends LinValidator {
   constructor() {
@@ -13,10 +14,10 @@ class ValidatorParam extends LinValidator {
   }
 
   protected setRule(rule: any) {
-    if (!global._.isArray(rule.rules) || rule.rules.length === 0)
+    if (!_.isArray(rule.rules) || rule.rules.length === 0)
       throw new global.ExceptionHttp({message: global.Message.rules})
     let ruleList = []
-    if (global._.isArray(rule.rules[0])) {
+    if (_.isArray(rule.rules[0])) {
       rule.rules.forEach((item: any) => {
         ruleList.push(
           new Rule(item[0], item[1])
@@ -42,7 +43,7 @@ class ValidatorParam extends LinValidator {
 export class ValidatorParameter extends ValidatorParam {
   constructor(rules: any) {
     super()
-    if (global._.isPlainObject(rules)) {
+    if (_.isPlainObject(rules)) {
       this.setRule(rules)
     } else {
       throw new global.ExceptionHttp({message: global.Message.rules})
@@ -60,7 +61,7 @@ export class ValidatorParameter extends ValidatorParam {
 export class ValidatorParameters extends ValidatorParam {
   constructor(rules: any) {
     super()
-    if (global._.isArray(rules)) {
+    if (_.isArray(rules)) {
       for (let i = 0, len = rules.length; i < len; i++) {
         let rule = rules[i]
         this.setRule(rule)

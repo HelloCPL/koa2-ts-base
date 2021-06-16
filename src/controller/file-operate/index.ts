@@ -9,6 +9,8 @@ import fs from 'fs'
 import path from 'path'
 import { query, execTrans } from '../../db'
 import { encrypt } from '../../utils/crypto'
+import _ from 'lodash'
+import dayjs from 'dayjs'
 
 /**
  * 文件文件上传 可上传一个或多个文件 返回数组格式
@@ -17,7 +19,7 @@ export async function doFileUpload(ctx: Koa.Context, next?: any) {
   const files: any = ctx.request.files
   const file: any = files.file
   const fileList = []
-  if (global._.isArray(file)) {
+  if (_.isArray(file)) {
     for (let value of file) {
       const obj = await writeFile(ctx, value)
       if (obj) fileList.push(obj)
@@ -39,7 +41,7 @@ export async function doFileUploadEditor(ctx: Koa.Context, next?: any) {
   const files: any = ctx.request.files
   const file: any = files.file
   const fileList = []
-  if (global._.isArray(file)) {
+  if (_.isArray(file)) {
     for (let value of file) {
       const obj = await writeFile(ctx, value, 'editors')
       if (obj) fileList.push(obj)
@@ -167,7 +169,7 @@ function returnFileObj(ctx: Koa.Context, file: any, isUser?: boolean) {
   let queryParams = '?'
   if (file.is_login === 1) { // 给两天有效期
     let day = file.check_valid_time || 3
-    let vt = global.dayjs().valueOf() + day * 24 * 60 * 60 * 1000
+    let vt = dayjs().valueOf() + day * 24 * 60 * 60 * 1000
     vt = encrypt(vt)
     queryParams += `vt=${vt}`
 

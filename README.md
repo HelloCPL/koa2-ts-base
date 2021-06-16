@@ -48,7 +48,6 @@
 ##### 挂载到全局变量 global 的自定义属性说明
 
 ```
-  global._ // 挂载 lodash，如 global._.isArray([1,2])
   global.tools // 常用方法集合，如 global.tools.toPath('/user', 'list')
   global.CONFIG // 配置，如 global.CONFIG.PORT
   global.Message // 返回提示信息，如 global.Message.error

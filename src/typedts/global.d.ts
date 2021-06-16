@@ -14,6 +14,7 @@ interface ToolsOptions {
   getUuId: Function,
   getFileRandomName: Function,
   getCurrentTime: Function,
+  formatDate: Function,
   [x: string]: any
 }
 
