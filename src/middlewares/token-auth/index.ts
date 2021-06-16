@@ -10,6 +10,7 @@ import JWT from 'jsonwebtoken'
 import { clientSet, clientGet, clientDel } from '../redis'
 import { decrypt } from '../../utils/crypto'
 import dayjs from 'dayjs'
+import CONFIG from '../../config/index'
 
 /**
  * 不校验路由集合
@@ -70,7 +71,7 @@ export async function TokenVerify(ctx: Koa.Context) {
   const tokenInfo: any = JWT.decode(token)
   try {
     let terminal = global.tools.getTerminal(ctx)
-    let tokenVerify = JWT.verify(token, global.CONFIG[terminal].SECRET_KEY)
+    let tokenVerify = JWT.verify(token, CONFIG[terminal].SECRET_KEY)
     let key = getTokenKey(ctx, tokenVerify)
     let tokenRedis: any = await clientGet(key)
     let tokenRedisInfo: any = JWT.decode(token)
@@ -81,7 +82,7 @@ export async function TokenVerify(ctx: Koa.Context) {
     if (tokenRedis !== token)
       return { message: '您的账号已在其他设备登录！', code: global.Code.authFailed, token: token }
     // token的登录设备信息与当前设备信息不一致
-    if (!global.CONFIG[terminal].ALLOW_MULTIPLE && tokenRedisInfo.userAgent !== ctx.request.header['user-agent'])
+    if (!CONFIG[terminal].ALLOW_MULTIPLE && tokenRedisInfo.userAgent !== ctx.request.header['user-agent'])
       return { message: '登录设备异常，为了安全请修改密码！', code: global.Code.authFailed, token: token }
   } catch (e) {
     let currentDateValue = dayjs().unix()
@@ -135,10 +136,10 @@ async function TokenVerifyStatic(ctx: Koa.Context, file: any) {
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
   let currentTime: number = dayjs().unix()
   user.terminal = global.tools.getTerminal(ctx)
-  user.delayTime = currentTime + global.CONFIG[user.terminal].EXPIRES_IN + global.CONFIG[user.terminal].DELAY
+  user.delayTime = currentTime + CONFIG[user.terminal].EXPIRES_IN + CONFIG[user.terminal].DELAY
   user.userAgent = ctx.request.header['user-agent']
-  let token = JWT.sign(user, global.CONFIG[user.terminal].SECRET_KEY, {
-    expiresIn: global.CONFIG[user.terminal].EXPIRES_IN
+  let token = JWT.sign(user, CONFIG[user.terminal].SECRET_KEY, {
+    expiresIn: CONFIG[user.terminal].EXPIRES_IN
   })
   let key = getTokenKey(ctx, user)
   await saveRedisToken(key, token)
@@ -151,7 +152,7 @@ export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any 
 export function getTokenKey(ctx: Koa.Context, user: any) {
   let key: any
   key = `${user.id}_${user.openid}_${user.terminal}`
-  if (!global.CONFIG[user.terminal].ALLOW_MULTIPLE) key = key + user.userAgent
+  if (!CONFIG[user.terminal].ALLOW_MULTIPLE) key = key + user.userAgent
   return key
 }
 

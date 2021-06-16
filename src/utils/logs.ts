@@ -12,6 +12,14 @@ import log4js from 'log4js'
 import logsConfig from '../config/logs'
 import _ from 'lodash'
 
+interface LoggerOptions {
+  request: Function,
+  response: Function,
+  query: Function,
+  error: Function,
+  [x: string]: any
+}
+
 // 加载配置文件
 log4js.configure(logsConfig)
 
@@ -83,7 +91,7 @@ let formatText = {
   },
 }
 
-export default {
+const Logger: LoggerOptions = {
   // 打印请求信息
   request: function (ctx: any) {
     if (ctx.request.url.startsWith('/favicon')) return
@@ -106,3 +114,4 @@ export default {
     infoLogger.info(formatText.error(...arg))
   },
 }
+export default Logger

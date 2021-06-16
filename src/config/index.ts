@@ -6,6 +6,24 @@
 
 const ENV = process.argv[2]
 
+interface ConfigOption {
+  ENV: string,
+  PORT: number,
+  HTTPS_PORT: number,
+  CRYPTOJS_KEY: string,
+  CRYPTOJS_IV: string,
+  DATABASE: DatabaseOption,
+  REDIS: RedisOption,
+  PC: SecretOption,
+  MANAGEMENT: SecretOption,
+  MOBILE: SecretOption,
+  APP: SecretOption,
+  WECHAT: SecretOption,
+  WX: WXOption,
+  BASE_URL: string,
+  [x: string]: any
+}
+
 const InitConfig = () => {
   switch (ENV) {
     // 正式环境
@@ -127,4 +145,5 @@ const InitConfig = () => {
   }
 }
 
-export default InitConfig()
+const CONFIG: ConfigOption = InitConfig()
+export default CONFIG
