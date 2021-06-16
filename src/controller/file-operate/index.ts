@@ -12,6 +12,7 @@ import { encrypt } from '../../utils/crypto'
 import _ from 'lodash'
 import dayjs from 'dayjs'
 import CONFIG from '../../config/index'
+import { getFileRandomName, getUuId, getCurrentTime } from '../../utils/tools'
 
 /**
  * 文件文件上传 可上传一个或多个文件 返回数组格式
@@ -104,10 +105,10 @@ async function writeFile(ctx: Koa.Context, file: any, place?: string) {
   const secret = ctx.request.query.secret || '0'
   const isLogin = ctx.request.query.isLogin || '1'
   const checkValidTime = ctx.request.query.checkValidTime || 3
-  const fileName = global.tools.getFileRandomName(file.name)
+  const fileName = getFileRandomName(file.name)
   // 先写入数据库
-  let id = global.tools.getUuId()
-  let createTime = global.tools.getCurrentTime()
+  let id = getUuId()
+  let createTime = getCurrentTime()
   let suffix = getSuffix(file.name)
   let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, is_login, create_user, check_valid_time, place) VALUES(?,?,?,?,?,?,?,?,?,?,?)`
   let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, ctx.user.id, checkValidTime, place]

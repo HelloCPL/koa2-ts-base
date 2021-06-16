@@ -2,6 +2,16 @@
  * @description 封装常用方法
  * @author chen
  * @update 2021-01-25 16:03:11
+ * @list 方法集合说明
+ *   toPath // 返回格式后的路径
+ *   sureIsArray // 确保返回数组集合方法
+ *   getTerminal // 获取请求终端
+ *   toCamelCase // 将 key 名称转换成 驼峰命名
+ *   isObject // 判断是否为对象
+ *   getUuId // 生成唯一id标识
+ *   getFileRandomName // 生成文件随机名字
+ *   getCurrentTime // 返回当前时间（或指定时间）
+ *   formatDate // 格式化日期
 */
 
 import Koa from 'koa'
@@ -13,7 +23,7 @@ import dayjs from 'dayjs'
  * 返回格式后的路径
  * 如 member/list 或 member/list/ ==> /member/list
 */
-function toPath(...arg: string[]) {
+export function toPath(...arg: string[]) {
   let getPath = (path: string) => {
     if (!path) return ''
     if (!path.startsWith('/'))
@@ -28,30 +38,23 @@ function toPath(...arg: string[]) {
 /**
  * 确保返回数组集合方法
 */
-function sureIsArray(arr: any): any[] {
+export function sureIsArray(arr: any): any[] {
   return Array.isArray(arr) ? arr : [arr]
 }
 
 /**
  * 获取请求终端
 */
-function getTerminal(ctx: Koa.Context) {
+export function getTerminal(ctx: Koa.Context) {
   if (ctx.request.header['word-terminal']) return ctx.request.header['word-terminal'].toLocaleUpperCase()
   let method = ctx.request.url
   return method.substring(1, method.indexOf('/', 1)).toLocaleUpperCase()
 }
 
 /**
- * 获取请求设备信息
-*/
-function getUserAgent(ctx: Koa.Context) {
-  return ctx.request.header['user-agent']
-}
-
-/**
  * 将 key 名称转换成 驼峰命名
 */
-function toCamelCase(results: any) {
+export function toCamelCase(results: any) {
   // 处理对象 key
   let toObjectKey = (obj: ObjectAny) => {
     let newObj: ObjectAny = {}
@@ -85,17 +88,17 @@ function toCamelCase(results: any) {
 /**
  * 判断是否为对象，补充 lodash 不能识别数据库查询返回的数据是否为对象的问题
 */
-function isObject(obj: any) {
+export function isObject(obj: any) {
   return _.isPlainObject(obj) || (typeof obj === 'object' && toString.call(obj) === '[object Object]')
 }
 
 // 生成唯一id标识
-function getUuId() {
+export function getUuId() {
   return uuidv4()
 }
 
 // 生成文件随机名字
-function getFileRandomName(fileName: string) {
+export function getFileRandomName(fileName: string) {
   let i = fileName.lastIndexOf('.')
   let suffix = ''
   if (i !== -1) suffix = fileName.substring(i)
@@ -103,30 +106,17 @@ function getFileRandomName(fileName: string) {
 }
 
 // 返回当前时间（或指定时间）
-function getCurrentTime(date: any) {
+export function getCurrentTime(date?: any) {
   date = date || new Date()
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }
 
 // 格式化日期
-function formatDate(date: any, format = 'YYYY-MM-DD HH:mm:ss') {
+export function formatDate(date: any, format = 'YYYY-MM-DD HH:mm:ss') {
   if (!date) return null
   try {
     return dayjs(date).format(format)
   } catch (e) {
     return null
   }
-}
-
-export default {
-  toPath,
-  sureIsArray, // 确保返回的为数组
-  getTerminal,
-  getUserAgent,
-  toCamelCase,
-  isObject,
-  getUuId,
-  getFileRandomName,
-  getCurrentTime,
-  formatDate
 }

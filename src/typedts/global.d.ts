@@ -4,20 +4,6 @@
  * @update 2021-01-19 15:54:01
 */
 
-interface ToolsOptions {
-  toPath: Function,
-  sureIsArray: Function,
-  getTerminal: Function,
-  getUserAgent: Function,
-  toCamelCase: Function,
-  isObject: Function,
-  getUuId: Function,
-  getFileRandomName: Function,
-  getCurrentTime: Function,
-  formatDate: Function,
-  [x: string]: any
-}
-
 interface DatabaseOption {
   NAME: string,
   USER: string,
@@ -81,9 +67,6 @@ interface ParamsMessageOption {
 // 声明命名空间 合并 Global 接口，用于扩展global对象
 declare namespace NodeJS {
   interface Global {
-    _: any,
-    dayjs: any,
-    tools: ToolsOptions,
     Message: MessageOption,
     Code: CodeOption,
     ParamsMessage: ParamsMessageOption,

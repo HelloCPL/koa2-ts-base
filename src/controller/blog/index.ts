@@ -7,6 +7,7 @@
 
 import Koa from 'koa'
 import { query, execTrans } from '../../db'
+import { getUuId, getCurrentTime } from '../../utils/tools'
 
 /**
  * 1 用户注册
@@ -31,10 +32,10 @@ export async function doBlogList(ctx: Koa.Context, next?: any) {
   for (let i = 0; i < total; i++) {
     let len = getRandom(10, 12)
     let obj = {
-      id: global.tools.getUuId(),
+      id: getUuId(),
       title: getTitle(len),
       desc: getTitle(),
-      createTime: global.tools.getCurrentTime()
+      createTime: getCurrentTime()
     }
     dataList.push(obj)
   }

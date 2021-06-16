@@ -4,6 +4,8 @@
  * @update 2021-01-20 10:24:21
 */
 
+import { toCamelCase } from '../utils/tools'
+
 export class ExceptionHttp extends Error {
   message: string
   data: any
@@ -20,7 +22,7 @@ export class ExceptionHttp extends Error {
 
   // 格式化返回数据 若为对象，属性名统一转成驼峰命名
   formatDataKey() {
-    this.data = global.tools.toCamelCase(this.data)
+    this.data = toCamelCase(this.data)
   }
 }
 

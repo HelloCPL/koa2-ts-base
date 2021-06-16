@@ -9,10 +9,9 @@
 
 import validator from 'validator'
 import { findMembers } from '../utils/find-members'
+import { get, last, set, cloneDeep } from 'lodash'
 
 const ParameterException = global.ExceptionParameter
-const { get, last, set, cloneDeep } = 'lodash'
-
 
 export class LinValidator {
   constructor() {

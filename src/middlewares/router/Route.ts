@@ -9,6 +9,7 @@ import Router from 'koa-router'
 import path from 'path'
 import glob from 'glob'
 import { TokenAuth } from '../token-auth'
+import { sureIsArray, toPath } from '../../utils/tools'
 
 
 const router = new Router()
@@ -43,12 +44,12 @@ export class Route {
     let unlessPath: string[] = [] // 不拦截的路由集合
     // 循环配置路由
     for (let [config, controller] of Route.__DecoratedRouters) {
-      let controllers: any[] = global.tools.sureIsArray(controller)
+      let controllers: any[] = sureIsArray(controller)
       let prefixPath = config.target[symbolRoutePrefix]
       // 拼接路由集合
       let routerPaths: string[] = []
       config.terminals.forEach(value => {
-        routerPaths.push(global.tools.toPath(value, prefixPath, config.path))
+        routerPaths.push(toPath(value, prefixPath, config.path))
       })
       // 忽略的路由
       if (config.unless)
@@ -62,7 +63,6 @@ export class Route {
     // 路由载入前进行token权限判断
     // this.app.use(auth.m)
     this.app.use(TokenAuth(unlessPath))
-
     this.app.use(this.router.routes())
     this.app.use(this.router.allowedMethods())
   }

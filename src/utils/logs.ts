@@ -82,11 +82,11 @@ let formatText = {
     logText += `\n!!!!!!!!!!!!!!!!!!!! 错误日志信息开始 ${global.requestCount} !!!!!!!!!!!!!!!!!!!!`
     for (let i = 0, len = arg.length; i < len; i++) {
       let info = arg[i]
-      if (_.isObject(info)) info = JSON.stringify(info)
+      if (_.isPlainObject(info)) info = JSON.stringify(info)
       logText += `\n  [errorInfoLog]: ${info}`
+      console.log(info);
     }
     logText += `\n!!!!!!!!!!!!!!!!!!!! 错误日志信息结束 ${global.requestCount} !!!!!!!!!!!!!!!!!!!!\n`
-    console.log(logText);
     return logText;
   },
 }

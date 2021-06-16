@@ -11,6 +11,7 @@ import { clientSet, clientGet, clientDel } from '../redis'
 import { decrypt } from '../../utils/crypto'
 import dayjs from 'dayjs'
 import CONFIG from '../../config/index'
+import { getTerminal, } from '../../utils/tools'
 
 /**
  * 不校验路由集合
@@ -70,7 +71,7 @@ export async function TokenVerify(ctx: Koa.Context) {
   const token = tokenOrigin.name
   const tokenInfo: any = JWT.decode(token)
   try {
-    let terminal = global.tools.getTerminal(ctx)
+    let terminal = getTerminal(ctx)
     let tokenVerify = JWT.verify(token, CONFIG[terminal].SECRET_KEY)
     let key = getTokenKey(ctx, tokenVerify)
     let tokenRedis: any = await clientGet(key)
@@ -135,7 +136,7 @@ async function TokenVerifyStatic(ctx: Koa.Context, file: any) {
 */
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {
   let currentTime: number = dayjs().unix()
-  user.terminal = global.tools.getTerminal(ctx)
+  user.terminal = getTerminal(ctx)
   user.delayTime = currentTime + CONFIG[user.terminal].EXPIRES_IN + CONFIG[user.terminal].DELAY
   user.userAgent = ctx.request.header['user-agent']
   let token = JWT.sign(user, CONFIG[user.terminal].SECRET_KEY, {

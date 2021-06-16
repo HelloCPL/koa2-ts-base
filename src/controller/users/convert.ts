@@ -32,29 +32,6 @@ export async function doUserLoginIsNotExist(ctx: Koa.Context, next: any) {
 }
 
 /**
- * 登录判断微信openID是否存在
-*/
-export async function isExistUserOpenid(openid: any) {
-  let sql = `SELECT openid FROM users_wechat_info WHERE openid = ?`
-  const res: any = await query(sql, openid)
-  if (res && res.length) return true
-  return false
-}
-
-/**
- * 登录判断是否绑定微信openID
-*/
-export async function isBindingUserOpenid(openid: any) {
-  let sql = `SELECT id, phone FROM users_info WHERE openid = ?`
-  const res: any = await query(sql, openid)
-  if (res && res.length) return res[0]
-  return {
-    id: null,
-    phone: null
-  }
-}
-
-/**
  * 判断用户是否存在
 */
 async function isExistUser(phone: any) {

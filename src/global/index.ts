@@ -4,7 +4,6 @@
  * @update 2021-01-19 15:06:23
 */
 
-import tools from './tools'
 import { Message, Code, ParamsMessage } from './enums'
 import { ExceptionHttp, ExceptionParameter, ExceptionNotFound, ExceptionForbidden, ExceptionAuthFailed, Success } from './http-exception'
 
@@ -12,7 +11,6 @@ class InitGlobal {
   constructor() { }
 
   init() {
-    global.tools = tools // 常用方法集合
     global.Message = Message // 返回提示信息
     global.Code = Code // 返回状态吗
     global.ParamsMessage = ParamsMessage // 参数提示信息

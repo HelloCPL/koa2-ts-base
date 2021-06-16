@@ -11,6 +11,7 @@ import { ValidatorParameters } from '../../utils/validator'
 import { LinValidator } from '../../lib/lin-validator'
 import _ from 'lodash'
 import Logger from '../../utils/logs'
+import { sureIsArray } from '../../utils/tools'
 
 // 记录总数
 export let requestCount: number = 0
@@ -127,7 +128,7 @@ export function All(path: string, unless?: boolean, terminals?: string[]) {
 */
 export function Required(params: any[] = []) {
   return function (target: any, name: string, descriptor: PropertyDescriptor) {
-    target[name] = global.tools.sureIsArray(target[name])
+    target[name] = sureIsArray(target[name])
     target[name].splice(0, 0, middleware)
     return descriptor
     // 处理参数中间件
@@ -147,15 +148,15 @@ export function Required(params: any[] = []) {
 */
 export function Convert(middleware: any) {
   return function (target: any, name: string, descriptor: any) {
-    target[name] = global.tools.sureIsArray(target[name])
+    target[name] = sureIsArray(target[name])
     target[name].splice(target[name].length - 1, 0, middleware)
     return descriptor
   }
   // return decorate(function (target: any, name: string, descriptor: any, middleware: Function) {
-  //   target[name] = global.tools.sureIsArray(target[name])
+  //   target[name] = sureIsArray(target[name])
   //   target[name].splice(target[name].length - 1, 0, middleware)
   //   return descriptor
-  // }, global.tools.sureIsArray(middleware))
+  // }, sureIsArray(middleware))
 }
 
 /**
@@ -171,7 +172,7 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
     unless: config.unless,
     terminals: config.terminals
   }, target[name])
-  target[name] = global.tools.sureIsArray(target[name])
+  target[name] = sureIsArray(target[name])
   // target[name].splice(target[name].length - 1, 0, middleware)
   let i = target[name].length - 1 >= 1 ? 1 : 0
   target[name].splice(i, 0, middleware)
