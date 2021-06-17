@@ -34,7 +34,7 @@ export async function doUserLoginIsNotExist(ctx: Koa.Context, next: any) {
 /**
  * 判断用户是否存在
 */
-async function isExistUser(phone: any) {
+export async function isExistUser(phone: any) {
   let sql = `SELECT id FROM users_info WHERE phone = ?`
   const res: any = await query(sql, phone)
   if (res && res.length) return true

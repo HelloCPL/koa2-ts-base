@@ -110,7 +110,6 @@
 
 ##### header 请求头参数说明
 
-  - `word-info` // 登录注册时传的密码，用 crypto.js 加密后的字符
   - `Authorization` // 普通请求携带的 token 请求头
   - `word-terminal` // 自定义终端，用于文件请求
   - `user-agent` // 访问平台设备信息

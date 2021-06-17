@@ -28,7 +28,7 @@ export default class UsersController {
   // 12 关联用户账号(仅小程序用户)
   @Convert(doUserLoginIsNotExist)
   @Post('info/associate', false, ['wechat'])
-  @Required(['phone', 'word-info'])
+  @Required(['phone', 'password'])
   async doUserInfoAssociateWeChat(ctx: Koa.Context, next: any) {
     await doUserInfoAssociateWeChat(ctx, next)
   }

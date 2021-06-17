@@ -11,32 +11,53 @@ import CONFIG from '../config/index'
  * crypto-js 加密方法
  * password 参数 keyStr 加密字符串 ivStr 加密字符串
 */
-export function encrypt(password: any, keyStr?: string, ivStr?: string) {
-  keyStr = keyStr ? keyStr : CONFIG.CRYPTOJS_KEY
-  ivStr = ivStr ? ivStr : CONFIG.CRYPTOJS_IV
-  let key = CryptoJS.enc.Utf8.parse(keyStr)
-  let iv = CryptoJS.enc.Utf8.parse(ivStr)
-  let srcs = CryptoJS.enc.Utf8.parse(password);
-  return CryptoJS.AES.encrypt(srcs, key, {
-    iv,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.ZeroPadding
-  }).toString()
+export function encrypt(str: any, keyStr?: string, ivStr?: string) {
+  if (!str) return str
+  try {
+    keyStr = keyStr ? keyStr : CONFIG.CRYPTOJS_KEY
+    ivStr = ivStr ? ivStr : CONFIG.CRYPTOJS_IV
+    let key = CryptoJS.enc.Utf8.parse(keyStr)
+    let iv = CryptoJS.enc.Utf8.parse(ivStr)
+    let srcs = CryptoJS.enc.Utf8.parse(str);
+    return CryptoJS.AES.encrypt(srcs, key, {
+      iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.ZeroPadding
+    }).toString()
+  } catch (e) {
+    return str
+  }
 }
 
 /**
  * crypto-js 解密方法
 */
-export function decrypt(password: any, keyStr?: string, ivStr?: string) {
-  if (!password) return password
-  keyStr = keyStr ? keyStr : CONFIG.CRYPTOJS_KEY
-  ivStr = ivStr ? ivStr : CONFIG.CRYPTOJS_IV
-  let key = CryptoJS.enc.Utf8.parse(keyStr)
-  let iv = CryptoJS.enc.Utf8.parse(ivStr)
-  let descyptStr = CryptoJS.AES.decrypt(password, key, {
-    iv,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.ZeroPadding
-  })
-  return descyptStr.toString(CryptoJS.enc.Utf8)
+export function decrypt(str: any, keyStr?: string, ivStr?: string) {
+  if (!str) return str
+  try {
+    keyStr = keyStr ? keyStr : CONFIG.CRYPTOJS_KEY
+    ivStr = ivStr ? ivStr : CONFIG.CRYPTOJS_IV
+    let key = CryptoJS.enc.Utf8.parse(keyStr)
+    let iv = CryptoJS.enc.Utf8.parse(ivStr)
+    let descyptStr = CryptoJS.AES.decrypt(str, key, {
+      iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.ZeroPadding
+    }).toString(CryptoJS.enc.Utf8)
+    return formatStr(descyptStr)
+  } catch (e) { return str }
+}
+
+// 将多余空格去除
+function formatStr(str: string): string {
+  if (!str) return ''
+  let strArr = str.split('')
+  let targetStr = ''
+  for (let i = 0, len = strArr.length; i < len; i++) {
+    let item = strArr[i].trim()
+    if (item && item != '\x00' && item != '\x02') {
+      targetStr += item
+    }
+  }
+  return targetStr
 }

@@ -6,7 +6,7 @@
 
 import Koa from 'koa'
 import { Prefix, Get, Post, Required, Convert } from '../../middlewares/router'
-import { doUserRegister, doUserLogin, doUserTokenRefresh, getUserInfoById, doUserExit, doUserEditById, doUserEditAvatarSelf } from '../../controller/users'
+import { doUserRegister, doUserLogin, doUserTokenRefresh, getUserInfoById, doUserExit, doUserEditById, doUserEditAvatarSelf, doUserEditPasswordSelf, doUserEditPhoneSelf, doUserRemoveWechatSelf } from '../../controller/users'
 import { doUserRegisterIsExist, doUserLoginIsNotExist } from '../../controller/users/convert'
 import { doFileUploadImgOne } from '../../controller/file-operate'
 
@@ -16,7 +16,7 @@ export default class UsersController {
   // 1 用户注册
   @Convert(doUserRegisterIsExist)
   @Post('register', true, ['management', 'pc', 'mobile', 'app'])
-  @Required(['phone', 'word-info'])
+  @Required(['phone', 'password'])
   async doUserRegister(ctx: Koa.Context, next: any) {
     await doUserRegister(ctx, next)
   }
@@ -24,7 +24,7 @@ export default class UsersController {
   // 2 用户登录
   @Convert(doUserLoginIsNotExist)
   @Post('login', true, ['management', 'pc', 'mobile', 'app'])
-  @Required(['phone', 'word-info'])
+  @Required(['phone', 'password'])
   async doUserLogin(ctx: Koa.Context, next: any) {
     await doUserLogin(ctx, next)
   }
@@ -81,5 +81,26 @@ export default class UsersController {
   async doUserEditAvatarSelf(ctx: Koa.Context, next: any) {
     const file = await doFileUploadImgOne(ctx, next)
     await doUserEditAvatarSelf(ctx, next, file)
+  }
+
+  // 12 修改本用户密码
+  @Post('edit/password/self', false, ['management', 'pc', 'mobile', 'app'])
+  @Required(['password', 'newPassword'])
+  async doUserEditPasswordSelf(ctx: Koa.Context, next: any) {
+    await doUserEditPasswordSelf(ctx, next)
+  }
+
+  // 13 修改本用户手机号
+  @Post('edit/phone/self', false, ['management', 'pc', 'mobile', 'app'])
+  @Required(['password', 'newPhone'])
+  async doUserEditPhoneSelf(ctx: Koa.Context, next: any) {
+    await doUserEditPhoneSelf(ctx, next)
+  }
+
+  // 14 解除小程序绑定
+  @Post('remove/wechat/self', false, ['management', 'pc', 'mobile', 'app'])
+  @Required(['password'])
+  async doUserRemoveWechatSelf(ctx: Koa.Context, next: any) {
+    await doUserRemoveWechatSelf(ctx, next)
   }
 }

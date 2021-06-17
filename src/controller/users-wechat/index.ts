@@ -75,7 +75,7 @@ export async function doUserInfoAssociateWeChat(ctx: Koa.Context, next: any) {
   let phone = ctx.data.body.phone
   const res: any = await query(sql, phone)
   let dbPassword = await decrypt(res[0]['password'])
-  let password = await decrypt(ctx.data.header['word-info'])
+  let password = await decrypt(ctx.data.body.password)
   if (password && dbPassword && password === dbPassword) {
     let id = res[0]['id']
     let openid = ctx.user.openid

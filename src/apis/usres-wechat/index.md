@@ -87,7 +87,7 @@
 | 参数名 | 类型 | 是否必填 | 说明 |
 |:---:|:---:|:---:|:---:|
 | phone | string | 是 | 手机号 |
-| word-info | string | 是 | 放在headers请求头，加密后的密码 |
+| password | string | 是 | 加密后的密码 |
 
 #### 返回示例
 
