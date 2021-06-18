@@ -53,7 +53,6 @@ export async function doUserLoginWeChat(ctx: Koa.Context, next?: any) {
 export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
   // let sql = `SELECT *, t1.openid, t1.create_time FROM users_wechat_info t1 LEFT JOIN users_info t2 ON t1.openid = t2.openid WHERE t1.openid = ?`
   let openid = ctx.user.openid
-  console.log(ctx.user);
   if (!openid) throw new global.ExceptionNotFound({ message: '用户不存在' })
   let sql = `SELECT * FROM users_wechat_info WHERE openid = ?`
   let res: any = await query(sql, openid)

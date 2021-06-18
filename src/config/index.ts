@@ -47,34 +47,34 @@ const InitConfig = () => {
           PORT: 6379,
           PASSWORD: '123456',
         },
-        PC: {
-          SECRET_KEY: 'PC', // token 秘钥
-          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
-          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
-          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
-        },
-        MANAGEMENT: {
+        MANAGEMENT: { // 管理端 代号 1
           SECRET_KEY: 'MANAGEMENT', // token 秘钥
           EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
           DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
           ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
         },
-        MOBILE: {
+        PC: { // PC电脑端 代号 2
+          SECRET_KEY: 'PC', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        MOBILE: { // 移动端 代号 3
           SECRET_KEY: 'MOBILE', // token 秘钥
           EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
           DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
           ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
         },
-        APP: {
-          SECRET_KEY: 'APP', // token 秘钥
-          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
-          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
-          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
-        },
-        WECHAT: {
+        WECHAT: { // 小程序端 代号 4
           SECRET_KEY: 'WECHAT', // token 秘钥
           EXPIRES_IN: 60 * 60 * 24 * 10, // token 有效时间默认 24小时
           DELAY: 60 * 60 * 24 * 3, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        APP: { // app端 代号 5
+          SECRET_KEY: 'APP', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
           ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
         },
         WX: { // 微信小程序信息配置
@@ -106,34 +106,34 @@ const InitConfig = () => {
           PORT: 6379,
           PASSWORD: '123456',
         },
-        PC: {
-          SECRET_KEY: 'PC', // token 秘钥
-          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
-          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
-          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
-        },
-        MANAGEMENT: {
+        MANAGEMENT: { // 管理端 代号 1
           SECRET_KEY: 'MANAGEMENT', // token 秘钥
           EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
           DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
           ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
         },
-        MOBILE: {
+        PC: { // PC电脑端 代号 2
+          SECRET_KEY: 'PC', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        MOBILE: { // 移动端 代号 3
           SECRET_KEY: 'MOBILE', // token 秘钥
           EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
           DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
           ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
         },
-        APP: {
-          SECRET_KEY: 'APP', // token 秘钥
-          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
-          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
-          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
-        },
-        WECHAT: {
+        WECHAT: { // 小程序端 代号 4
           SECRET_KEY: 'WECHAT', // token 秘钥
           EXPIRES_IN: 60 * 60 * 24 * 10, // token 有效时间默认 24小时
           DELAY: 60 * 60 * 24 * 3, // token 过期后在 2小时 内可刷新
+          ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
+        },
+        APP: { // app端 代号 5
+          SECRET_KEY: 'APP', // token 秘钥
+          EXPIRES_IN: 60 * 60 * 24, // token 有效时间默认 24小时
+          DELAY: 60 * 60 * 2, // token 过期后在 2小时 内可刷新
           ALLOW_MULTIPLE: true, // 是否允许同一账号同时登陆多个设备
         },
         WX: { // 微信小程序信息配置
