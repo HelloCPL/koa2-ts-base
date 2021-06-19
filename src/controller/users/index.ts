@@ -67,21 +67,21 @@ export async function doUserLogin(ctx: Koa.Context, next?: any) {
 */
 export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
   const tokenData: any = await TokenVerify(ctx)
-  if (tokenData.code === global.Code.success)
-    throw new global.Success({
-      data: tokenData.token
-    })
   let tokenInfo: any = JWT.decode(tokenData.token)
-  if (tokenData.token && tokenData.code === global.Code.authRefresh && tokenInfo) {
-    let user = {
-      id: tokenInfo.id,
-      phone: tokenInfo.phone,
-      openid: tokenInfo.openid
+  if (tokenData.token && tokenInfo && tokenInfo.id) {
+    let sql = `SELECT phone, openid FROM users_info WHERE id = ?`
+    const res: any = await query(sql, tokenInfo.id)
+    if (res.length) {
+      let user = {
+        id: tokenInfo.id,
+        phone: res[0]['phone'],
+        openid: res[0]['openid']
+      }
+      let token = await TokenGernerate(ctx, user)
+      throw new global.Success({
+        data: token
+      })
     }
-    let token = await TokenGernerate(ctx, user)
-    throw new global.Success({
-      data: token
-    })
   }
   throw new global.ExceptionHttp({
     message: '请重新登录',

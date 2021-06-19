@@ -37,7 +37,7 @@ const InitConfig = () => {
         DATABASE: { // 数据库配置
           NAME: 'introduce',
           USER: 'root',
-          PASSWORD: 'CPLabc603',
+          PASSWORD: 'CPLabc603.',
           HOST: '106.55.153.80',
           PORT: 3306,
           CONNECTION_LIMIT: 500
