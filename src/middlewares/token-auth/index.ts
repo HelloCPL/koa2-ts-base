@@ -2,6 +2,11 @@
  * @description token权限校验
  * @author chen
  * @update 2021-01-21 14:23:03
+ * @list 方法集合说明
+ *   TokenAuth // token拦截中间件
+ *   TokenVerify // 普通路由校验方法
+ *   TokenGernerate // 生成 token
+ *   getTokenKey // 获取token保存的key
 */
 
 import Koa from 'koa'
@@ -130,8 +135,8 @@ async function TokenVerifyStatic(ctx: Koa.Context, file: any) {
 }
 
 /**
- * user 参数 {id, phone, openid}
  * 生成 token
+ * user 参数 {id, phone, openid}
  * redis 保存 token 结构 { id, phone, openid, delayTime(延迟更新时间), userAgent, terminal }
 */
 export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any }) {

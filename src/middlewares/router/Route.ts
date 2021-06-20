@@ -2,6 +2,9 @@
  * @description 路由统一注册
  * @author chen
  * @update 2021-01-22 16:09:11
+ * @list 方法集合说明
+ *   symbolRoutePrefix // 定义固定的前缀字段
+ *   Route // 自动注册路由类
 */
 
 import Koa from 'koa'

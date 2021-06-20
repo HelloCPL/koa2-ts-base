@@ -2,6 +2,10 @@
  * @description: 连接 redis 保存 token
  * @author chen
  * @update 2021-01-29 11:24:45
+ * @list 方法集合说明
+ *   clientSet // 保存 redis 值
+ *   clientGet // 获取 redis 值
+ *   clientDel // 删除 redis 值
 */
 
 import Redis from 'redis'
@@ -22,7 +26,7 @@ redisClient.on('error', err => {
   Logger.error('redis 发生错误', err, 'redis 发生错误')
 })
 
-// 保存 redis 值s
+// 保存 redis 值
 export const clientSet = (key: string, value: any) => {
   if (!key) return
   return new Promise((resolve, reject) => {

@@ -2,12 +2,15 @@
  * @description: 全局枚举
  * @author chen
  * @update 2021-01-20 11:20:09
+ * @list 方法集合说明
+ *   Message // 返回数据信息提示
+ *   Code // 返回数据状态码
+ *   ParamsMessage // 必传参数不满足条件时提示文本
 */
 
 /**
  * 返回数据信息提示
 */
-
 export enum Message {
   error = '服务器发生错误',
   parameter = '参数错误',
@@ -21,7 +24,6 @@ export enum Message {
 /**
  * 返回数据状态码
 */
-
 export enum Code {
   error = 500,
   parameter = 400,

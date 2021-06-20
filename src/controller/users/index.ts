@@ -2,6 +2,17 @@
  * @description: 用户模块 业务处理
  * @author chen
  * @update 2021-01-27 11:17:43
+ * @list 方法集合说明
+ *   doUserRegister // 用户注册
+ *   doUserLogin // 用户登录
+ *   doUserTokenRefresh // 刷新 token 
+ *   doUserExit // 用户退出
+ *   getUserInfoById // 获取指定用户信息(本用户或指定用户)
+ *   doUserEditById // 修改用户部分信息(本用户或指定用户)
+ *   doUserEditAvatarSelf // 修改用户头像(仅本用户)
+ *   doUserEditPasswordSelf // 修改本用户密码
+ *   doUserEditPhoneSelf // 修改本用户手机号
+ *   doUserRemoveWechatSelf // 解除小程序绑定
 */
 
 import Koa from 'koa'

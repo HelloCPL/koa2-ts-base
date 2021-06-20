@@ -3,6 +3,9 @@
  * @author chen
  * @update 2021-01-20 15:50:57
  * @remark 校验方式参考 https://www.npmjs.com/package/validator
+ * @list 方法集合说明
+ *   ValidatorParameter // 校验一个参数类
+ *   ValidatorParameters // 校验多个参数类
 */
 
 import { Rule, LinValidator } from '../lib/lin-validator'
@@ -39,7 +42,6 @@ class ValidatorParam extends LinValidator {
  * @description: 校验一个参数
  * @update 2021-01-20 15:52:12
 */
-
 export class ValidatorParameter extends ValidatorParam {
   constructor(rules: any) {
     super()
@@ -57,7 +59,6 @@ export class ValidatorParameter extends ValidatorParam {
  * @description: 校验多个参数
  * @update 2021-01-20 15:53:45
 */
-
 export class ValidatorParameters extends ValidatorParam {
   constructor(rules: any) {
     super()

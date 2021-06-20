@@ -2,6 +2,13 @@
  * @description: 文件上传模块 业务处理
  * @author chen
  * @update 2021-02-05 16:59:01
+ * @list 方法集合说明
+ *   doFileUpload // 文件文件上传 可上传一个或多个文件 返回数组格式
+ *   doFileUploadEditor // 富文本文件文件上传 可上传一个或多个文件 返回数组格式
+ *   doFileDelete // 文件删除 传 ids 可删除多个 用逗号隔开
+ *   doFileUploadImgOne // 图片上传 可上传一个返回对象格式
+ *   getFileById // 单个文件 根据文件/图片 id 返回文件对象数据 没有返回 null
+ *   getFileByIds // 多个文件 根据文件/图片 ids 用逗号隔开 返回文件数组对象数据 没有返回 []
 */
 
 import Koa from 'koa'

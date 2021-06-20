@@ -2,6 +2,10 @@
  * @description: 用户模块小程序端 业务处理
  * @author chen
  * @update 2021-06-16 14:30:19
+ * @list 方法集合说明
+ *   doUserLoginWeChat // 用户登录（小程序用户登录）
+ *   getUserInfoSelfWeChat // 获取本用户信息(小程序用户，只能获取本用户信息，无法获取指定用户信息)
+ *   doUserInfoAssociateWeChat // 关联用户账号(仅小程序用户)
 */
 
 import Koa from 'koa'

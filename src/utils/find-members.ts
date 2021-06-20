@@ -2,6 +2,8 @@
  * @description: 遍历寻找成员方法
  * @author chen
  * @update 2021-01-20 15:14:26
+ * @list 方法集合说明
+ *   findMembers // 遍历寻找成员方法
 */
 
 interface MembersOptions {
@@ -10,6 +12,7 @@ interface MembersOptions {
   filter?: any,
 }
 
+// 遍历寻找成员方法
 export function findMembers(instance: any, options: MembersOptions) {
   function _find(instance: any): any {
     if (instance.__proto__ === null) return []

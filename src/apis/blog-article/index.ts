@@ -8,13 +8,13 @@
 
 import Koa from 'koa'
 import { Prefix, Get, Post, Required, Convert } from '../../middlewares/router'
-import { doBlogList } from '../../controller/blog'
+import { doBlogList } from '../../controller/blog-article'
 
-@Prefix('blog')
-export default class BlogController {
+@Prefix('blog/article')
+export default class BlogArticleController {
 
-  // 1 获取博客列表
-  @Get('list')
+  // 1 新增博客文章
+  @Post('add')
   @Required()
   async doBlogList(ctx: Koa.Context, next: any) {
     await doBlogList(ctx, next)

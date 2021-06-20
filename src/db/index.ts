@@ -2,6 +2,9 @@
  * @description: 连接数据库
  * @author chen
  * @update 2021-01-27 09:50:55
+ * @list 方法集合说明
+ *   query // 普通查询
+ *   execTrans // 事务查询
 */
 
 import MySQL from 'mysql2'
