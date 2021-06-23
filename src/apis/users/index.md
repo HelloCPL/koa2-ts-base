@@ -205,7 +205,7 @@
 | 参数名 | 类型 | 是否必填 | 说明 |
 |:---:|:---:|:---:|:---:|
 | userName | string | 否 | 用户昵称 |
-| sex | tinyint | 否 | 用户性别 1 男 2 女 0 未知 |
+| sex | string | 否 | 用户性别 1 男 2 女 0 未知 |
 | birthday | string | 否 | 用户生日（时间格式字符串） |
 | address | string | 否 | 用户地址 |
 | professional | string | 否 | 用户职位 |
@@ -238,7 +238,7 @@
 |:---:|:---:|:---:|:---:|
 | id | string | 是 | 用户 id |
 | userName | string | 否 | 用户昵称 |
-| sex | tinyint | 否 | 用户性别 1 男 2 女 0 未知 |
+| sex | string | 否 | 用户性别 1 男 2 女 0 未知 |
 | birthday | string | 否 | 用户生日（时间格式字符串） |
 | address | string | 否 | 用户地址 |
 | professional | string | 否 | 用户职位 |

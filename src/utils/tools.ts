@@ -5,7 +5,6 @@
  * @list 方法集合说明
  *   toPath // 返回格式后的路径
  *   sureIsArray // 确保返回数组集合方法
- *   getTerminal // 获取请求终端
  *   toCamelCase // 将 key 名称转换成 驼峰命名
  *   isObject // 判断是否为对象
  *   getUuId // 生成唯一id标识
@@ -40,15 +39,6 @@ export function toPath(...arg: string[]) {
 */
 export function sureIsArray(arr: any): any[] {
   return Array.isArray(arr) ? arr : [arr]
-}
-
-/**
- * 获取请求终端
-*/
-export function getTerminal(ctx: Koa.Context) {
-  if (ctx.request.header['word-terminal']) return ctx.request.header['word-terminal'].toLocaleUpperCase()
-  let method = ctx.request.url
-  return method.substring(1, method.indexOf('/', 1)).toLocaleUpperCase()
 }
 
 /**

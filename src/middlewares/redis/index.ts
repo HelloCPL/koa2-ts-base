@@ -53,10 +53,12 @@ export const clientGet = (key: string) => {
 export const clientDel = (key: string) => {
   if (!key) return
   return new Promise((resolve, reject) => {
-    redisClient.del(key, (err: any) => {
-      if (err) reject(err)
-      else resolve(null)
-    })
+    try {
+      redisClient.del(key, (err: any) => {
+        if (err) reject(err)
+        else resolve(null)
+      })
+    } catch (e) { resolve(null) }
   })
 }
 

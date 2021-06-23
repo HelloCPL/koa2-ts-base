@@ -20,7 +20,7 @@ interface ObjectException {
 // 数据库查询参数接口类型
 interface ObjectSQLParams {
   sql: string,
-  data?: string
+  data?: any [] | string
 }
 
 // 路由请求参数接口类型

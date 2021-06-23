@@ -16,7 +16,7 @@ import { clientSet, clientGet, clientDel } from '../redis'
 import { decrypt } from '../../utils/crypto'
 import dayjs from 'dayjs'
 import CONFIG from '../../config/index'
-import { getTerminal, } from '../../utils/tools'
+import { getTerminal, } from '../../utils/users'
 
 /**
  * 不校验路由集合
@@ -157,7 +157,9 @@ export async function TokenGernerate(ctx: Koa.Context, user: { [x: string]: any 
 */
 export function getTokenKey(ctx: Koa.Context, user: any) {
   let key: any
-  key = `${user.id}_${user.openid}_${user.terminal}`
+  if (user.openid)
+    key = `${user.id}_${user.openid}_${user.terminal}`
+  else key = `${user.id}_${user.terminal}`
   if (!CONFIG[user.terminal].ALLOW_MULTIPLE) key = key + user.userAgent
   return key
 }

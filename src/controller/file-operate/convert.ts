@@ -6,6 +6,7 @@
 
 import Koa from 'koa'
 import { query } from '../../db'
+import { getUserId } from '../../utils/users'
 
 /**
  * 删除文件时判断是否包含有权限限制操作的文件
@@ -13,12 +14,12 @@ import { query } from '../../db'
 export async function doFileDeleteIsPower(ctx: Koa.Context, next: any) {
   const ids: any = ctx.data.query.ids
   const sql = `SELECT file_name as fileName FROM files_info t WHERE t.secret = 1 and FIND_IN_SET(id, ?) and t.create_user != ?`
-  const data = [ids, ctx.user.id]
+  const data = [ids, getUserId(ctx)]
   const res: any = await query(sql, data)
   if (res.length) {
     let illegal = res.map((item: any) => item.fileName).join(',')
     throw new global.ExceptionParameter({
-      message: `你没有权限删除“${illegal}”这${res.length}条数据，请取消勾选这${res.length}条数据后再操作`,
+      message: `你没有权限删除“${illegal}”这${res.length}条数据`,
     })
   }
   await next()

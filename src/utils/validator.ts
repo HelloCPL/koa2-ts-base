@@ -18,7 +18,7 @@ class ValidatorParam extends LinValidator {
 
   protected setRule(rule: any) {
     if (!_.isArray(rule.rules) || rule.rules.length === 0)
-      throw new global.ExceptionHttp({message: global.Message.rules})
+      throw new global.ExceptionHttp({ message: global.Message.rules })
     let ruleList = []
     if (_.isArray(rule.rules[0])) {
       rule.rules.forEach((item: any) => {
@@ -48,7 +48,7 @@ export class ValidatorParameter extends ValidatorParam {
     if (_.isPlainObject(rules)) {
       this.setRule(rules)
     } else {
-      throw new global.ExceptionHttp({message: global.Message.rules})
+      throw new global.ExceptionHttp({ message: global.Message.rules })
     }
   }
 }
@@ -68,8 +68,24 @@ export class ValidatorParameters extends ValidatorParam {
         this.setRule(rule)
       }
     } else {
-      throw new global.ExceptionHttp({message: global.Message.rules})
+      throw new global.ExceptionHttp({ message: global.Message.rules })
     }
   }
 }
 
+/**
+ * 校验参数是否在指定范围内容
+*/
+export const validateRange = (value: any, data: any[], message?: string) => {
+  if (value || value === 0 || value === false) {
+    let flag = false
+    data.find(val => {
+      if (value == val) {
+        flag = true
+        return true
+      }
+    })
+    if (flag) return value
+    else throw new global.ExceptionParameter({ message: message || '参数有误' })
+  } else return value
+}

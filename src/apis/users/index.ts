@@ -9,6 +9,7 @@ import { Prefix, Get, Post, Required, Convert } from '../../middlewares/router'
 import { doUserRegister, doUserLogin, doUserTokenRefresh, getUserInfoById, doUserExit, doUserEditById, doUserEditAvatarSelf, doUserEditPasswordSelf, doUserEditPhoneSelf, doUserRemoveWechatSelf } from '../../controller/users'
 import { doUserRegisterIsExist, doUserLoginIsNotExist } from '../../controller/users/convert'
 import { doFileUploadImgOne } from '../../controller/file-operate'
+import {getUserId} from '../../utils/users'
 
 @Prefix('users')
 export default class UsersController {
@@ -47,7 +48,7 @@ export default class UsersController {
   @Get('info/self', false, ['management', 'pc', 'mobile', 'app'])
   @Required()
   async getUserInfoSelf(ctx: Koa.Context, next: any) {
-    let id = ctx.user.id
+    let id = getUserId(ctx)
     await getUserInfoById(ctx, next, id)
   }
 
@@ -63,7 +64,7 @@ export default class UsersController {
   @Post('edit/self', false, ['management', 'pc', 'mobile', 'app'])
   @Required()
   async doUserEditSelf(ctx: Koa.Context, next: any) {
-    let id = ctx.user.id
+    let id = getUserId(ctx)
     await doUserEditById(ctx, next, id)
   }
 

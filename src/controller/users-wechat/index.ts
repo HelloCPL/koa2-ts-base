@@ -45,9 +45,7 @@ export async function doUserLoginWeChat(ctx: Koa.Context, next?: any) {
     openid: wechatData.openid
   }
   let token = await TokenGernerate(ctx, user)
-  throw new global.Success({
-    data: token
-  })
+  throw new global.Success({ data: token })
 }
 
 
@@ -65,9 +63,7 @@ export async function getUserInfoSelfWeChat(ctx: Koa.Context, next?: any) {
   delete res['session_key']
   // 处理头像
   // res.head_img = await getFileById(ctx, res.head_img)
-  throw new global.Success({
-    data: res
-  })
+  throw new global.Success({ data: res })
 }
 
 /**
@@ -90,16 +86,9 @@ export async function doUserInfoAssociateWeChat(ctx: Koa.Context, next: any) {
       // 返回新的token
       let user = { id, phone, openid }
       let token = await TokenGernerate(ctx, user)
-      throw new global.Success({
-        data: token
-      })
-    } else {
-      throw new global.ExceptionHttp({
-        message: '账号关联失败'
-      })
-    }
+      throw new global.Success({ data: token })
+    } else
+      throw new global.ExceptionHttp({ message: '账号关联失败' })
   }
-  throw new global.ExceptionParameter({
-    message: '密码错误'
-  })
+  throw new global.ExceptionParameter({ message: '密码错误' })
 }

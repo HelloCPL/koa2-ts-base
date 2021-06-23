@@ -23,6 +23,7 @@ import { decrypt } from '../../utils/crypto'
 import { clientDel } from '../../middlewares/redis'
 import { getFileById } from '../file-operate'
 import { getUuId, getCurrentTime, formatDate } from '../../utils/tools'
+import { getUserId, getUserInfo } from '../../utils/users'
 import { isExistUser } from './convert'
 
 /**
@@ -37,9 +38,7 @@ export async function doUserRegister(ctx: Koa.Context, next?: any) {
   let sql = `INSERT users_info (id, user_name, password, phone, update_time, create_time) VALUES (?,?,?,?,?,?)`
   let data = [id, userName, password, phone, currentTime, currentTime]
   const res = await query(sql, data)
-  throw new global.Success({
-    message: '恭喜，注册成功！'
-  })
+  throw new global.Success({ message: '恭喜，注册成功！' })
 }
 
 /**
@@ -62,13 +61,9 @@ export async function doUserLogin(ctx: Koa.Context, next?: any) {
       openid: res[0]['openid']
     }
     let token = await TokenGernerate(ctx, user)
-    throw new global.Success({
-      data: token
-    })
+    throw new global.Success({ data: token })
   }
-  throw new global.ExceptionParameter({
-    message: '密码错误'
-  })
+  throw new global.ExceptionParameter({ message: '密码错误' })
 }
 
 
@@ -89,9 +84,7 @@ export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
         openid: res[0]['openid']
       }
       let token = await TokenGernerate(ctx, user)
-      throw new global.Success({
-        data: token
-      })
+      throw new global.Success({ data: token })
     }
   }
   throw new global.ExceptionHttp({
@@ -107,9 +100,7 @@ export async function doUserTokenRefresh(ctx: Koa.Context, next?: any) {
 export async function doUserExit(ctx: Koa.Context, next?: any) {
   let key = getTokenKey(ctx, ctx.user)
   await clientDel(key)
-  throw new global.Success({
-    data: '已退出'
-  })
+  throw new global.Success({ data: '已退出' })
 }
 
 /**
@@ -125,9 +116,7 @@ export async function getUserInfoById(ctx: Koa.Context, next: any, id: any) {
   }
   // 处理头像
   userInfo.head_img = await getFileById(ctx, userInfo.head_img)
-  throw new global.Success({
-    data: userInfo
-  })
+  throw new global.Success({ data: userInfo })
 }
 
 /**
@@ -135,7 +124,7 @@ export async function getUserInfoById(ctx: Koa.Context, next: any, id: any) {
 */
 export async function doUserEditById(ctx: Koa.Context, next: any, id: any) {
   let userName = ctx.data.body.userName
-  let sex = ctx.data.body.sex || 0
+  let sex = ctx.data.body.sex || '0'
   let birthday = formatDate(ctx.data.body.birthday)
   let address = ctx.data.body.address
   let professional = ctx.data.body.professional
@@ -144,119 +133,93 @@ export async function doUserEditById(ctx: Koa.Context, next: any, id: any) {
   let sql = 'UPDATE users_info SET user_name = ?, sex = ?, birthday = ?, address = ?, professional = ?, remarks = ?, update_time = ? WHERE id = ?;'
   let data = [userName, sex, birthday, address, professional, remarks, currentTime, id]
   let res: any = await query(sql, data)
-  if (res.affectedRows) {
+  if (res.affectedRows)
     throw new global.Success()
-  } else {
-    throw new global.ExceptionHttp({
-      message: '未找到该用户'
-    })
-  }
+  else
+    throw new global.ExceptionHttp({ message: '未找到该用户' })
 }
 
 /**
  * 11 修改用户头像(仅本用户)
 */
 export async function doUserEditAvatarSelf(ctx: Koa.Context, next: any, file: any) {
-  let id = ctx.user.id
+  let id = getUserId(ctx)
   let currentTime = getCurrentTime()
   let sql = 'UPDATE users_info SET head_img = ?, update_time = ? WHERE id = ?;'
   let data = [file.id, currentTime, id]
   let res: any = await query(sql, data)
-  if (res.affectedRows) {
+  if (res.affectedRows)
     throw new global.Success({ data: file })
-  } else {
-    throw new global.ExceptionHttp({
-      message: '未找到该用户'
-    })
-  }
+  else
+    throw new global.ExceptionHttp({ message: '未找到该用户' })
 }
 
 /**
  * 12 修改本用户密码
 */
 export async function doUserEditPasswordSelf(ctx: Koa.Context, next: any) {
-  let id = ctx.user.id
+  let id = getUserId(ctx)
   let password = decrypt(ctx.data.body.password)
   let newPassword = ctx.data.body.newPassword
-  if (password === newPassword) {
+  if (password === newPassword)
     throw new global.ExceptionParameter({ message: '新密码不能与旧密码相同' })
-  }
-  let sql = `SELECT password FROM users_info WHERE id = ?`
-  const res: any = await query(sql, id)
-  let originPassword = decrypt(res[0]['password'])
-  if (password !== originPassword) {
+  const userInfo = await getUserInfo(ctx) // 获取用户信息
+  let originPassword = decrypt(userInfo.password)
+  if (password !== originPassword)
     throw new global.ExceptionParameter({ message: '原始密码不正确' })
-  }
   let currentTime = getCurrentTime()
   let sql2 = `UPDATE users_info SET password = ?, update_time = ? WHERE id = ?;`
   let data2 = [newPassword, currentTime, id]
   let res2: any = await query(sql2, data2)
-  if (res2.affectedRows) {
+  if (res2.affectedRows)
     throw new global.Success()
-  } else {
-    throw new global.ExceptionHttp({
-      message: '密码修改失败'
-    })
-  }
+  else
+    throw new global.ExceptionHttp({ message: '密码修改失败' })
 }
 
 /**
  * 13 修改本用户手机号
 */
 export async function doUserEditPhoneSelf(ctx: Koa.Context, next: any) {
-  let id = ctx.user.id
+  let id = getUserId(ctx)
   let newPhone = ctx.data.body.newPhone
   let password = decrypt(ctx.data.body.password)
-  let sql = `SELECT password, phone FROM users_info WHERE id = ?`
-  const res: any = await query(sql, id)
-  let originPhone = res[0]['phone']
-  let originPassword = decrypt(res[0]['password'])
-  if (newPhone === originPhone) {
+  const userInfo = await getUserInfo(ctx) // 获取用户信息
+  let originPhone = userInfo.phone
+  let originPassword = decrypt(userInfo.password)
+  if (newPhone === originPhone)
     throw new global.ExceptionParameter({ message: '新手机号不能与旧手机号相同' })
-  }
-  if (password !== originPassword) {
+  if (password !== originPassword)
     throw new global.ExceptionParameter({ message: '原始密码不正确' })
-  }
   let flag = await isExistUser(newPhone)
-  if (flag) {
+  if (flag)
     throw new global.ExceptionParameter({ message: '新手机号已存在，请更换要绑定的手机号' })
-  }
   let currentTime = getCurrentTime()
   let sql2 = `UPDATE users_info SET phone = ?, update_time = ? WHERE id = ?;`
   let data2 = [newPhone, currentTime, id]
   let res2: any = await query(sql2, data2)
-  if (res2.affectedRows) {
+  if (res2.affectedRows)
     throw new global.Success()
-  } else {
-    throw new global.ExceptionHttp({
-      message: '手机号修改失败'
-    })
-  }
+  else
+    throw new global.ExceptionHttp({ message: '手机号修改失败' })
 }
 
 /**
  * 14 解除小程序绑定
 */
 export async function doUserRemoveWechatSelf(ctx: Koa.Context, next: any) {
-  let id = ctx.user.id
+  let id = getUserId(ctx)
   let password = decrypt(ctx.data.body.password)
-  console.log(password);
-
-  let sql = `SELECT password FROM users_info WHERE id = ?`
-  const res: any = await query(sql, id)
-  let originPassword = decrypt(res[0]['password'])
-  if (password !== originPassword) {
+  const userInfo = await getUserInfo(ctx) // 获取用户信息
+  let originPassword = decrypt(userInfo.password)
+  if (password !== originPassword)
     throw new global.ExceptionParameter({ message: '密码不正确' })
-  }
   let currentTime = getCurrentTime()
   let sql2 = `UPDATE users_info SET openid = ?, update_time = ? WHERE id = ?;`
   let data2 = [null, currentTime, id]
   let res2: any = await query(sql2, data2)
-  if (res2.affectedRows) {
+  if (res2.affectedRows)
     throw new global.Success()
-  } else {
-    throw new global.ExceptionHttp({
-      message: '解除小程序绑定失败'
-    })
-  }
+  else
+    throw new global.ExceptionHttp({ message: '解除小程序绑定失败' })
 }

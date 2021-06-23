@@ -12,6 +12,7 @@ import { LinValidator } from '../../lib/lin-validator'
 import _ from 'lodash'
 import Logger from '../../utils/logs'
 import { sureIsArray } from '../../utils/tools'
+import { getUserId } from '../../utils/users'
 
 // 记录总数
 export let requestCount: number = 0
@@ -186,7 +187,7 @@ function router(target: any, name: string, descriptor: PropertyDescriptor, confi
     global.requestCount++
     global.requestStart = process.hrtime.bigint()
     let userId = null
-    if (ctx.user) userId = ctx.user.id
+    if (ctx.user) userId = getUserId(ctx)
     Logger.request(ctx)
     await next()
   }

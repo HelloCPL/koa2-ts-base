@@ -17,5 +17,6 @@ declare module 'koa' {
       header: ObjectAny,
     } | any, // 访问参数
     terminal: any, // 访问终端
+    userInfo: any // 用户信息
   }
 }

@@ -20,6 +20,7 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 import CONFIG from '../../config/index'
 import { getFileRandomName, getUuId, getCurrentTime } from '../../utils/tools'
+import { getUserId } from '../../utils/users'
 
 /**
  * 文件文件上传 可上传一个或多个文件 返回数组格式
@@ -37,9 +38,7 @@ export async function doFileUpload(ctx: Koa.Context, next?: any) {
     const obj = await writeFile(ctx, file)
     if (obj) fileList.push(obj)
   }
-  throw new global.Success({
-    data: fileList
-  })
+  throw new global.Success({ data: fileList })
 }
 
 /**
@@ -59,9 +58,7 @@ export async function doFileUploadEditor(ctx: Koa.Context, next?: any) {
     const obj = await writeFile(ctx, file, 'editors')
     if (obj) fileList.push(obj)
   }
-  throw new global.Success({
-    data: fileList
-  })
+  throw new global.Success({ data: fileList })
 }
 
 /**
@@ -97,9 +94,7 @@ export async function doFileUploadImgOne(ctx: Koa.Context, next?: any) {
   const files: any = ctx.request.files
   const file: any = files.file
   if (!file.type.startsWith('image'))
-    throw new global.ExceptionParameter({
-      message: '只能上传图片类型'
-    })
+    throw new global.ExceptionParameter({ message: '只能上传图片类型' })
   const fileObj = await writeFile(ctx, file)
   return fileObj
 }
@@ -118,7 +113,7 @@ async function writeFile(ctx: Koa.Context, file: any, place?: string) {
   let createTime = getCurrentTime()
   let suffix = getSuffix(file.name)
   let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, is_login, create_user, check_valid_time, place) VALUES(?,?,?,?,?,?,?,?,?,?,?)`
-  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, ctx.user.id, checkValidTime, place]
+  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, getUserId(ctx), checkValidTime, place]
   await query(sql, data)
   // 再创建可读流
   const reader = fs.createReadStream(file.path)
@@ -169,22 +164,22 @@ export async function getFileByIds(ctx: Koa.Context, ids: any, isUser?: boolean)
 
 // 返回文件格式
 function returnFileObj(ctx: Koa.Context, file: any, isUser?: boolean) {
+  let userId = getUserId(ctx)
   if (!file) return null
   // 判断是否需要登录可获取
-  if (file.is_login === 1 && !ctx.user.id) return null
+  if (file.is_login == '1' && !userId) return null
   // 判断是否私有照片
-  if (file.secret === 1 && (!ctx.user.id || ctx.user.id !== file.create_user)) return null
+  if (file.secret == '1' && (!userId || userId !== file.create_user)) return null
   let filePath = CONFIG.BASE_URL + file.place + '/' + file.file_path
   let queryParams = '?'
-  if (file.is_login === 1) { // 给两天有效期
+  if (file.is_login == '1') { // 给两天有效期
     let day = file.check_valid_time || 3
     let vt: any = dayjs().valueOf() + day * 24 * 60 * 60 * 1000
     vt = encrypt(vt)
     queryParams += `vt=${vt}`
-
   }
-  if (file.secret === 1) { // 添加用户id
-    let si = ctx.user.id
+  if (file.secret == '1') { // 添加用户id
+    let si = userId
     si = encrypt(si)
     if (queryParams === '?') queryParams += `si=${si}`
     else queryParams += `&si=${si}`

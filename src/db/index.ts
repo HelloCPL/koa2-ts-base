@@ -33,6 +33,8 @@ export function query(sql: string, data?: any) {
   return new Promise((resolve, reject) => {
     Logger.query(sql, data)
     pool.query(sql, data, async (err, results) => {
+      console.log(err);
+      console.log(results);
       if (err)
         return throwError(reject, '服务器发生错误：数据库查询语句出错', null, sql, data)
       resolve(results)
@@ -101,7 +103,7 @@ function throwError(reject: any, message: string, err?: any, ...arg: any) {
 // 事务查询发生错误时回滚并返回错误
 function handleExceTransRoolback(reject: any, connection: any, err: any, message: string, ...arg: any) {
   connection.roolback(() => {
-  Logger.error(message, ...arg)
+    Logger.error(message, ...arg)
     connection.release()
     reject(new global.ExceptionHttp({
       message,
