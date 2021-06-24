@@ -8,18 +8,17 @@
 import Koa from 'koa'
 import { query, execTrans } from '../../db'
 import { getUuId, getCurrentTime } from '../../utils/tools'
-import { getTerminal, getUserId } from '../../utils/users'
-import { Terminal } from '../../utils/enums'
+import { getTerminalCode, _getUserId } from '../../utils/users'
 import { updateSet, selectWhere, selectWhereKeyword } from '../../utils/handle-mysql'
-import { getUserInfo } from '../../utils/users'
-import { likeAndCollection } from './convert'
+import { _getUserInfo } from '../../utils/users'
+import { handleArticleField } from './convert'
+import { doBlogCommentDeleteByArticle } from '../blog-interact/convert'
 /**
  * 1 新增博客文章
 */
 export async function doBlogAdd(ctx: Koa.Context, next?: any) {
   let body: any = ctx.data.body
-  let terminal = getTerminal(ctx)
-  let source = Terminal[terminal]
+  let source = getTerminalCode(ctx)
   let isLogin = body.isLogin || '0'
   let isSecret = body.isSecret || '0'
   let isDraft = body.isDraft || '0'
@@ -27,7 +26,7 @@ export async function doBlogAdd(ctx: Koa.Context, next?: any) {
   let isHot = body.isHot || '0'
   let currentTime = getCurrentTime()
   let sql = `INSERT blog_article (id, title, content, cover_img, classify, tag, type, attachment, create_user, is_login, is_secret, is_draft, is_top, is_hot, source, create_time, update_time, remarks) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?)`
-  let data = [getUuId(), body.title, body.content, body.coverImg, body.classify, body.tag, body.type, body.attachment, getUserId(ctx), isLogin, isSecret, isDraft, isTop, isHot, source, currentTime, currentTime, body.remarks]
+  let data = [getUuId(), body.title, body.content, body.coverImg, body.classify, body.tag, body.type, body.attachment, _getUserId(ctx), isLogin, isSecret, isDraft, isTop, isHot, source, currentTime, currentTime, body.remarks]
   const res: any = await query(sql, data)
   if (res && res['affectedRows'])
     throw new global.Success()
@@ -47,7 +46,7 @@ export async function doBlogEdit(ctx: Koa.Context, next?: any) {
     data: body,
   })
   // 可设置权限
-  const userInfo: any = await getUserInfo(ctx)
+  const userInfo: any = await _getUserInfo(ctx)
   let sqlPower = { sql: '', data: [] }
   if (userInfo.isAdmin != '1') {
     sqlPower.sql = 'AND (create_user = ? OR create_user = ?)'
@@ -64,8 +63,10 @@ export async function doBlogEdit(ctx: Koa.Context, next?: any) {
  * 3 删除博客文章，多个用逗号隔开（作者或管理员可删）
 */
 export async function doBlogDeletes(ctx: Koa.Context, next?: any) {
+  let ids = ctx.data.query.ids
   let sql = `DELETE FROM blog_article WHERE FIND_IN_SET(id, ?)`
-  const res: any = await query(sql, ctx.data.query.ids)
+  const res: any = await query(sql, ids)
+  // await doBlogCommentDeleteByArticle(ids)
   throw new global.Success()
 }
 
@@ -75,7 +76,7 @@ export async function doBlogDeletes(ctx: Koa.Context, next?: any) {
 export async function doBlogInfo(ctx: Koa.Context, next?: any) {
   let sql = `SELECT * FROM blog_article WHERE id = ?`
   let res: any = await query(sql, ctx.data.query.id)
-  res = await likeAndCollection(ctx, res) // 添加点赞或收藏字段
+  res = await handleArticleField(ctx, res) // 添加字段
   throw new global.Success({ data: res[0] })
 }
 
@@ -98,7 +99,7 @@ export async function doBlogListSelf(ctx: Koa.Context, next?: any) {
   queryData.pageNo = queryData.pageNo * 1 || 1
   queryData.pageSize = queryData.pageSize * 1 || 10
   let pageNo = (queryData.pageNo - 1) * queryData.pageSize
-  const userInfo: any = await getUserInfo(ctx)
+  const userInfo: any = await _getUserInfo(ctx)
   const whereSql = `WHERE (create_user = ? OR create_user = ?) ${sqlParams.sql ? 'AND ' + sqlParams.sql : ''} ${keywordParams.sql ? 'AND ' + keywordParams.sql : ''}`
   let sql1 = `SELECT COUNT(id) as total FROM blog_article ${whereSql}`
   let data1 = [userInfo.id, userInfo.openid, ...sqlParams.data, ...keywordParams.data]
@@ -110,6 +111,6 @@ export async function doBlogListSelf(ctx: Koa.Context, next?: any) {
   ]
   const res: any = await execTrans(queryParams)
   let total = res[0][0]['total']
-  let dataList = await likeAndCollection(ctx, res[1]) // 添加点赞或收藏字段
+  let dataList = await handleArticleField(ctx, res[1]) // 添加字段
   throw new global.Success({ data: dataList, total })
 }

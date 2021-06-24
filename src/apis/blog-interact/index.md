@@ -172,14 +172,14 @@
 
 #### 请求
 
-- `get` `blog/interact/comment/delete`
+- `get` `blog/interact/comment/list`
 
 #### 参数
 
 | 参数名 | 类型 | 是否必填 | 说明 |
 |:---:|:---:|:---:|:---:|
 | id | string | 是 | 文章（话题）id 或评论id |
-| type | string | 是 | 评论类型 1 第一级别评论 2 第二级别评论 |
+| type | string | 是 | 评论类型 1 第一级别评论（直接对文章的评论） 2 第二级别评论（对第一级别的评论） |
 | pageNo | number | 否 | 分页 默认 1 |
 | pageSize | number | 否 | 每页页数 默认 1 |
 
@@ -189,7 +189,26 @@
   {
     "code": 200,
     "message": "操作成功",
-    "data": null,
+    "data": [
+      {
+        "id": "c833f7de-cb13-4c4d-8823-8d1c473885f2",
+        "articleId": "ba8b0ad7-b4f5-431e-8384-c0fa6023ce24",
+        "content": "测试联动，第一级别评论2",
+        "fromUid": "29d0ecfe-c888-4b76-b95a-349fe81ae4d1",
+        "type": "1",
+        "source": "2",
+        "createTime": "2021-06-24 16:07:29",
+        "sourceName": "PC端",
+        "fromName": "测试者",
+        "isSelf": "1",
+        "isDelete": "1",
+        "isLike": "0",
+        "likeCount": 0,
+        "total": 4,
+        "toUid": null,
+        "toName": ""
+      }
+    ],
     "total": 0
   }
 ```
