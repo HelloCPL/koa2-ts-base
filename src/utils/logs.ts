@@ -4,7 +4,7 @@
  * @update 2021-03-11 17:33:29
 */
 
-import {getUserId} from '../utils/users'
+import {_getUserId} from '../utils/users'
 
 // https://www.cnblogs.com/chunshan-blog/p/12632141.html
 
@@ -40,7 +40,7 @@ let formatText = {
     logText += `\n  [requestStartTime]: ${global.requestStart},`
     logText += `\n  [requestOriginalUrl]: ${ctx.originalUrl},`
     logText += `\n  [requestIP]: ${ctx.ip},`
-    if (ctx.user && getUserId(ctx))
+    if (ctx.user && _getUserId(ctx))
       logText += `\n  [requestUserInfo]: ${JSON.stringify(ctx.user)},`
     logText += `\n  [requestAPI]: ${ctx.url},`
     logText += `\n  [requestMethod]: ${ctx.method},`

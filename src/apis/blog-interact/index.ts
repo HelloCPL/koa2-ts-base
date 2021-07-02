@@ -6,8 +6,8 @@
 
 import Koa from 'koa'
 import { Prefix, Get, Post, Required, Convert } from '../../middlewares/router'
-import { doBlogLike, doBlogLikeCancel, doBlogCollection, doBlogCollectionCancel, doBlogCommentAddType1, doBlogCommentAddType2, doBlogCommentDelete, doBlogCommentListType1, doBlogCommentListType2 } from '../../controller/blog-interact'
-import { validateBlogCommentType } from '../../controller/blog-interact/convert'
+import { doBlogLike, doBlogLikeCancel, doBlogCollection, doBlogCollectionCancel, doBlogCommentAddType1, doBlogCommentAddType2, doBlogCommentDeleteType1, doBlogCommentDeleteType2, doBlogCommentListType1, doBlogCommentListType2 } from '../../controller/blog-interact'
+import { validateBlogCommentType, findCommentIsExist } from '../../controller/blog-interact/convert'
 
 @Prefix('blog/interact')
 export default class BlogInteractController {
@@ -55,7 +55,12 @@ export default class BlogInteractController {
   @Get('comment/delete')
   @Required(['id'])
   async doBlogCommentDelete(ctx: Koa.Context, next: any) {
-    await doBlogCommentDelete(ctx, next)
+    let commentId = ctx.data.query.id
+    const commentInfo: any = await findCommentIsExist(ctx, commentId)
+    if (commentInfo.type == '1')
+      await doBlogCommentDeleteType1(ctx, next)
+    else if (commentInfo.type == '2')
+      await doBlogCommentDeleteType2(ctx, next)
   }
 
   // 7 获取评论列表 1 第一级别评论列表 2 第二级别评论列表

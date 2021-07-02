@@ -76,7 +76,7 @@
 | is_draft | v4 | 否 | 是否草稿状态 1 是 0 否 默认 0 非草稿状态即发布 |
 | is_top | v4 | 否 | 是否置顶 1 是 0 否 默认 0 仅管理员可设置 |
 | is_hot | v4 | 否 | 是否热门文章 1 是 0 否 默认 0 仅管理员可设置或点赞或收藏最多的文章 |
-| source | v4 | 否 | 来源 1 management 2 pc 3 mobile 4 wechat 5 app |
+| source | v4 | 是 | 来源 1 management 2 pc 3 mobile 4 wechat 5 app |
 | create_time | v64 | 是 | 创建时间 |
 | update_time | v64 | 是 | 最新修改时间 |
 | remarks | text | 否 | 备注 |
@@ -115,6 +115,8 @@
 | article_id | v64 | 是 | 文章（话题） id |
 | content | text | 是 | 评论内容 |
 | from_uid | v64 | 是 | 评论者 id 小程序用openid 其他来源用用户id |
+| type | v4 | 是 | 类型 1 评论 2 问答 |
+| source | v4 | 是 | 来源 1 management 2 pc 3 mobile 4 wechat 5 app |
 | create_time | v64 | 是 | 评论时间 |
 
 #### blog_comment_child 第二级别评论信息表
@@ -130,6 +132,8 @@
 | content | text | 是 | 评论内容 |
 | from_uid | v64 | 是 | 评论者 id 小程序用openid 其他来源用用户id |
 | to_uid | v64 | 是 | 回复目标 id |
+| type | v4 | 是 | 类型 1 评论 2 问答 |
+| source | v4 | 是 | 来源 1 management 2 pc 3 mobile 4 wechat 5 app |
 | create_time | v64 | 是 | 回复时间 |
 
 

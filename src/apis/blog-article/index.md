@@ -128,25 +128,30 @@
     "message": "操作成功",
     "data": {
       "id": "bca78715-e15f-4c18-92d2-2b4a31e3ebc6",
-      "title": "标题哈哈",
-      "content": "大大的标题",
+      "title": "测试标题",
+      "content": "测试内容，很多很多很多内容",
       "coverImg": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
       "classify": "大前端",
       "tag": "vue,js,html",
-      "type": 1,
+      "type": "1",
       "attachment": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
       "createUser": "29d0ecfe-c888-4b76-b95a-349fe81ae4d1",
-      "isLogin": 0,
-      "isSecret": 1,
-      "isDraft": 1,
-      "isTop": 1,
-      "isHot": 0,
-      "source": 2,
+      "isLogin": "0",
+      "isSecret": "1",
+      "isDraft": "1",
+      "isTop": "1",
+      "isHot": "0",
+      "source": "2",
       "createTime": "2021-06-21 17:55:40",
       "updateTime": "2021-06-22 10:16:24",
       "remarks": "这是备注哈哈哈",
-      "isLike": 1,
-      "isCollection": 1
+      "sourceName": "PC端",
+      "createUserName": "测试者",
+      "isLike": "1",
+      "isCollection": "1",
+      "likeCount": 3,
+      "collectionCount": 2,
+      "commentCount": 2
     },
     "total": 0
   }
@@ -181,9 +186,35 @@
   {
     "code": 200,
     "message": "操作成功",
-    "data": {
-      // ...
-    },
+    "data": [
+      {
+        "id": "bca78715-e15f-4c18-92d2-2b4a31e3ebc6",
+        "title": "测试标题",
+        "content": "测试内容，很多很多很多内容",
+        "coverImg": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
+        "classify": "大前端",
+        "tag": "vue,js,html",
+        "type": "1",
+        "attachment": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
+        "createUser": "29d0ecfe-c888-4b76-b95a-349fe81ae4d1",
+        "isLogin": "0",
+        "isSecret": "1",
+        "isDraft": "1",
+        "isTop": "1",
+        "isHot": "0",
+        "source": "2",
+        "createTime": "2021-06-21 17:55:40",
+        "updateTime": "2021-06-22 10:16:24",
+        "remarks": "这是备注哈哈哈",
+        "sourceName": "PC端",
+        "createUserName": "测试者",
+        "isLike": "1",
+        "isCollection": "1",
+        "likeCount": 3,
+        "collectionCount": 2,
+        "commentCount": 2
+      }
+    ],
     "total": 0
   }
 ```

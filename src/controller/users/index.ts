@@ -23,7 +23,7 @@ import { decrypt } from '../../utils/crypto'
 import { clientDel } from '../../middlewares/redis'
 import { getFileById } from '../file-operate'
 import { getUuId, getCurrentTime, formatDate } from '../../utils/tools'
-import { getUserId, getUserInfo } from '../../utils/users'
+import { _getUserId, _getUserInfo } from '../../utils/users'
 import { isExistUser } from './convert'
 
 /**
@@ -143,7 +143,7 @@ export async function doUserEditById(ctx: Koa.Context, next: any, id: any) {
  * 11 修改用户头像(仅本用户)
 */
 export async function doUserEditAvatarSelf(ctx: Koa.Context, next: any, file: any) {
-  let id = getUserId(ctx)
+  let id = _getUserId(ctx)
   let currentTime = getCurrentTime()
   let sql = 'UPDATE users_info SET head_img = ?, update_time = ? WHERE id = ?;'
   let data = [file.id, currentTime, id]
@@ -158,12 +158,12 @@ export async function doUserEditAvatarSelf(ctx: Koa.Context, next: any, file: an
  * 12 修改本用户密码
 */
 export async function doUserEditPasswordSelf(ctx: Koa.Context, next: any) {
-  let id = getUserId(ctx)
+  let id = _getUserId(ctx)
   let password = decrypt(ctx.data.body.password)
   let newPassword = ctx.data.body.newPassword
   if (password === newPassword)
     throw new global.ExceptionParameter({ message: '新密码不能与旧密码相同' })
-  const userInfo = await getUserInfo(ctx) // 获取用户信息
+  const userInfo = await _getUserInfo(ctx) // 获取用户信息
   let originPassword = decrypt(userInfo.password)
   if (password !== originPassword)
     throw new global.ExceptionParameter({ message: '原始密码不正确' })
@@ -181,10 +181,10 @@ export async function doUserEditPasswordSelf(ctx: Koa.Context, next: any) {
  * 13 修改本用户手机号
 */
 export async function doUserEditPhoneSelf(ctx: Koa.Context, next: any) {
-  let id = getUserId(ctx)
+  let id = _getUserId(ctx)
   let newPhone = ctx.data.body.newPhone
   let password = decrypt(ctx.data.body.password)
-  const userInfo = await getUserInfo(ctx) // 获取用户信息
+  const userInfo = await _getUserInfo(ctx) // 获取用户信息
   let originPhone = userInfo.phone
   let originPassword = decrypt(userInfo.password)
   if (newPhone === originPhone)
@@ -208,9 +208,9 @@ export async function doUserEditPhoneSelf(ctx: Koa.Context, next: any) {
  * 14 解除小程序绑定
 */
 export async function doUserRemoveWechatSelf(ctx: Koa.Context, next: any) {
-  let id = getUserId(ctx)
+  let id = _getUserId(ctx)
   let password = decrypt(ctx.data.body.password)
-  const userInfo = await getUserInfo(ctx) // 获取用户信息
+  const userInfo = await _getUserInfo(ctx) // 获取用户信息
   let originPassword = decrypt(userInfo.password)
   if (password !== originPassword)
     throw new global.ExceptionParameter({ message: '密码不正确' })

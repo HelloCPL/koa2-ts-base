@@ -7,8 +7,8 @@
 import Koa from 'koa'
 import { query } from '../../db'
 import { validateRange } from '../../utils/validator'
-import { getUserInfo } from '../../utils/users'
-import { judgeIsLike, judgeIsCollection } from '../blog-interact/convert'
+import { _getUserInfo, _getUserInfoById, getTerminalName } from '../../utils/users'
+import { judgeIsLike, judgeIsCollection, getLikeCount, getCollectionCount, getArticleCommentCount } from '../blog-interact/convert'
 
 /**
  * 新增编辑时自定义校验参数 type isLogin isSecret isDraft isTop isHot
@@ -25,7 +25,7 @@ export async function validateBlogParamsAddOrEdit(ctx: Koa.Context, next: any) {
   let isHot = body.isHot
   // 只有管理员才能指定
   if (isTop == '1' || isHot == '1') {
-    const userInfo = await getUserInfo(ctx)
+    const userInfo = await _getUserInfo(ctx)
     if (userInfo.isAdmin != '1') throw new global.ExceptionAuthFailed({ message: 'isHot isTop 只有管理员才能修改' })
   }
   await next()
@@ -35,7 +35,7 @@ export async function validateBlogParamsAddOrEdit(ctx: Koa.Context, next: any) {
  * 校验是否有权限删除文章（作者或管理员）
 */
 export async function validateDeleteIsPower(ctx: Koa.Context, next: any) {
-  const userInfo = await getUserInfo(ctx)
+  const userInfo = await _getUserInfo(ctx)
   const sql = `SELECT id, create_user FROM blog_article WHERE FIND_IN_SET(id, ?)`
   let res: any = await query(sql, ctx.data.query.ids)
   res = res.filter((item: any) => {
@@ -59,8 +59,8 @@ export async function validateInfoIsPower(ctx: Koa.Context, next: any) {
   if (res && res.length) {
     res = res[0]
     if (res.is_secret == 1) {
-      const userInfo = await getUserInfo(ctx)
-      if (!(userInfo.id === res.create_user || userInfo.openid === res.create_user || userInfo.isAdmin == 1)) {
+      const userInfo = await _getUserInfo(ctx)
+      if (!(userInfo.id === res.create_user || userInfo.openid === res.create_user || userInfo.isAdmin == '1')) {
         throw new global.ExceptionForbidden({ message: '你没有权限查看该文章' })
       }
     }
@@ -69,16 +69,32 @@ export async function validateInfoIsPower(ctx: Koa.Context, next: any) {
 }
 
 /**
- * 查询详情或列表时添加是否点赞 isLike 收藏 isCollection 字段
+ * 查询详情或列表时添加 
+ * sourceName 来源名称 createUserName 用户名称
+ * isLike 是否点赞 isCollection 是否收藏
+ * likeCount 点赞总数 collectionCount 收藏总数 commentCount 文章评论总数 
 */
-export async function likeAndCollection(ctx: Koa.Context, data: any[]) {
+export async function handleArticleField(ctx: Koa.Context, data: any[]) {
   for (let i = 0, len = data.length; i < len; i++) {
+    // 来源名称
+    data[i].sourceName = getTerminalName(data[i].source)
+    // 用户名称
+    let targetUser = await _getUserInfoById(data[i]['create_user'], data[i].source)
+    data[i].createUserName = targetUser.userName
+    // 是否点赞 
     let isLike = await judgeIsLike(ctx, data[i].id)
     if (isLike) data[i].isLike = '1'
     else data[i].isLike = '0'
+    // 是否收藏
     let isCollection = await judgeIsCollection(ctx, data[i].id)
     if (isCollection) data[i].isCollection = '1'
     else data[i].isCollection = '0'
+    // 点赞总数
+    data[i].likeCount = await getLikeCount(data[i].id)
+    // 收藏总数
+    data[i].collectionCount = await getCollectionCount(data[i].id)
+    // 文章评论总数
+    data[i].commentCount = await getArticleCommentCount(data[i].id)
   }
   return data
 }

@@ -6,7 +6,7 @@
 
 import Koa from 'koa'
 import { query } from '../../db'
-import { getUserId } from '../../utils/users'
+import { _getUserId } from '../../utils/users'
 
 /**
  * 删除文件时判断是否包含有权限限制操作的文件
@@ -14,7 +14,7 @@ import { getUserId } from '../../utils/users'
 export async function doFileDeleteIsPower(ctx: Koa.Context, next: any) {
   const ids: any = ctx.data.query.ids
   const sql = `SELECT file_name as fileName FROM files_info t WHERE t.secret = 1 and FIND_IN_SET(id, ?) and t.create_user != ?`
-  const data = [ids, getUserId(ctx)]
+  const data = [ids, _getUserId(ctx)]
   const res: any = await query(sql, data)
   if (res.length) {
     let illegal = res.map((item: any) => item.fileName).join(',')

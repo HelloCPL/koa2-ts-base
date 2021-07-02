@@ -20,7 +20,7 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 import CONFIG from '../../config/index'
 import { getFileRandomName, getUuId, getCurrentTime } from '../../utils/tools'
-import { getUserId } from '../../utils/users'
+import { _getUserId } from '../../utils/users'
 
 /**
  * 文件文件上传 可上传一个或多个文件 返回数组格式
@@ -113,7 +113,7 @@ async function writeFile(ctx: Koa.Context, file: any, place?: string) {
   let createTime = getCurrentTime()
   let suffix = getSuffix(file.name)
   let sql = `INSERT files_info (id, file_path, file_name, file_size, create_time, suffix, secret, is_login, create_user, check_valid_time, place) VALUES(?,?,?,?,?,?,?,?,?,?,?)`
-  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, getUserId(ctx), checkValidTime, place]
+  let data = [id, fileName, file.name, file.size, createTime, suffix, secret, isLogin, _getUserId(ctx), checkValidTime, place]
   await query(sql, data)
   // 再创建可读流
   const reader = fs.createReadStream(file.path)
@@ -164,7 +164,7 @@ export async function getFileByIds(ctx: Koa.Context, ids: any, isUser?: boolean)
 
 // 返回文件格式
 function returnFileObj(ctx: Koa.Context, file: any, isUser?: boolean) {
-  let userId = getUserId(ctx)
+  let userId = _getUserId(ctx)
   if (!file) return null
   // 判断是否需要登录可获取
   if (file.is_login == '1' && !userId) return null
