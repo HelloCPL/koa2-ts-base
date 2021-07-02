@@ -46,7 +46,7 @@
 | id | v64 | 是 | 文件id |
 | file_path | v255 | 是 | 文件路径(仅指文件名称) |
 | file_name | v64 | 否 | 原始文件名 |
-| file_size | mediumint | 否 | 文件大小，单位 B |
+| file_size | int | 否 | 文件大小，单位 B |
 | suffix | v64 | 否 | 文件后缀名 |
 | place | v64 | 否 | 文件存放位置, 默认 files 目录 |
 | create_user | v64 | 否 | 创建者id |
