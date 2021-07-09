@@ -9,12 +9,14 @@ import { query } from '../../db'
 import { validateRange } from '../../utils/validator'
 import { _getUserInfo, _getUserInfoById, getTerminalName } from '../../utils/users'
 import { judgeIsLike, judgeIsCollection, getLikeCount, getCollectionCount, getArticleCommentCount } from '../blog-interact/convert'
+import { getFileByIds } from '../file-operate'
 
 /**
  * 新增编辑时自定义校验参数 type isLogin isSecret isDraft isTop isHot
 */
 export async function validateBlogParamsAddOrEdit(ctx: Koa.Context, next: any) {
   let body: any = ctx.data.body
+  validateRange(body.contentType, ['0', '1', '2'], 'type 参数有误')
   validateRange(body.type, ['1', '2', '3'], 'type 参数有误')
   validateRange(body.isLogin, ['0', '1'], 'isLogin 参数有误')
   validateRange(body.isSecret, ['0', '1'], 'isSecret 参数有误')
@@ -95,6 +97,10 @@ export async function handleArticleField(ctx: Koa.Context, data: any[]) {
     data[i].collectionCount = await getCollectionCount(data[i].id)
     // 文章评论总数
     data[i].commentCount = await getArticleCommentCount(data[i].id)
+    // 处理图片
+    data[i]['cover_img'] = await getFileByIds(ctx, data[i]['cover_img'])
+    // 处理附件
+    data[i]['attachment'] = await getFileByIds(ctx, data[i]['attachment'])
   }
   return data
 }

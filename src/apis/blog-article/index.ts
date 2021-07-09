@@ -17,7 +17,7 @@ export default class BlogArticleController {
   // 1 新增博客文章
   @Convert(validateBlogParamsAddOrEdit)
   @Post('add')
-  @Required(['content', 'type&isInt'])
+  @Required(['content', 'contentType', 'type&isInt'])
   async doBlogAdd(ctx: Koa.Context, next: any) {
     await doBlogAdd(ctx, next)
   }

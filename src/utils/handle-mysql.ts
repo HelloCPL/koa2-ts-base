@@ -5,23 +5,12 @@
  * @list 方法集合说明
  *   updateSet // 处理编辑更新的数据SQL语句
  *   selectWhere // 处理查询列表时where条件语句
+ *   selectWhereKeyword // 处理查询列表时where条件为keyword时
+ *   selectWhereByTime // 处理查询列表时where条件为时间区域时
 */
 
 import _ from 'lodash'
-
-// 'UPDATE users_info SET user_name = ?, sex = ?, birthday = ?, address = ?, professional = ?, remarks = ?, update_time = ? WHERE id = ?;'
-
-// `SELECT * FROM users_info WHERE id = ?`
-
-interface paramsOptions {
-  valid: string[],
-  data: ObjectAny
-}
-
-interface paramsKeywordOptions {
-  valid: string[],
-  keyword: any
-}
+import { formatDate } from './tools'
 
 interface returnOptions {
   sql: string,
@@ -51,8 +40,18 @@ export const updateSet = (params: paramsOptions): returnOptions => {
  * 处理查询列表时where条件语句
  * valid 有效的参数名集合 可带表名、指定数据key，如 pas t1.pas pas:password
  * data 传参对象
+ * prefix SQL条件前缀 默认 AND
+ * connector SQL条件连接符 默认 AND
 */
-export const selectWhere = (params: paramsOptions, prefix: string = 'AND'): returnOptions => {
+interface paramsOptions {
+  valid: string[],
+  data: ObjectAny,
+  prefix?: String,
+  connector?: String
+}
+export const selectWhere = (params: paramsOptions): returnOptions => {
+  params.prefix = params.prefix || 'AND'
+  params.connector = params.connector || 'AND'
   let sql = ''
   let data: any[] = []
   params.valid.forEach((value) => {
@@ -60,10 +59,12 @@ export const selectWhere = (params: paramsOptions, prefix: string = 'AND'): retu
     let flag = params.data.hasOwnProperty(keys.camelCaseKey) && (params.data[keys.camelCaseKey] || params.data[keys.camelCaseKey] === 0 || params.data[keys.camelCaseKey] === false)
     if (flag) {
       if (data.length === 0) sql += ` \`${keys.snakeCaseKey}\` = ? `
-      else sql += ` ${prefix} \`${keys.snakeCaseKey}\` = ? `
+      else sql += ` ${params.connector} \`${keys.snakeCaseKey}\` = ? `
       data.push(params.data[keys.camelCaseKey])
     }
   })
+  if (sql)
+    sql = ` ${params.prefix} ${sql}`
   return { sql, data }
 }
 
@@ -71,8 +72,18 @@ export const selectWhere = (params: paramsOptions, prefix: string = 'AND'): retu
  * 处理查询列表时where条件为keyword时
  * valid 有效的参数名集合 可带表名、指定数据key，如 pas t1.pas pas:password
  * data 传参对象
+ * prefix SQL条件前缀 默认 AND
+ * connector SQL条件连接符 默认 OR
 */
-export const selectWhereKeyword = (params: paramsKeywordOptions, prefix: string = 'OR'): returnOptions => {
+interface paramsKeywordOptions {
+  valid: string[],
+  keyword: any,
+  prefix?: String,
+  connector?: String
+}
+export const selectWhereKeyword = (params: paramsKeywordOptions): returnOptions => {
+  params.prefix = params.prefix || 'AND'
+  params.connector = params.connector || 'OR'
   let sql = ''
   let data: any[] = []
   params.valid.forEach((value) => {
@@ -80,11 +91,36 @@ export const selectWhereKeyword = (params: paramsKeywordOptions, prefix: string 
     let flag = params.keyword || params.keyword === 0 || params.keyword === false
     if (flag) {
       if (!sql) sql += ` \`${keys.snakeCaseKey}\` LIKE ? `
-      else sql += ` ${prefix} \`${keys.snakeCaseKey}\` LIKE ? `
+      else sql += ` ${params.connector} \`${keys.snakeCaseKey}\` LIKE ? `
       data.push(`%${params.keyword}%`)
     }
   })
-  if(sql) sql = `(${sql})`
+  if (sql) sql = ` ${params.prefix} (${sql})`
+  return { sql, data }
+}
+
+/**
+ * 处理查询列表时where条件为时间区域时
+ * startTime 开始时间数据
+ * endTime 结束时间数据
+ * sqlTime 对比字段名 默认 update_time 如 update_time t1.update_time
+ * prefix SQL条件前缀 默认 AND
+*/
+export const selectWhereByTime = (startTime: any, endTime: any, sqlTime = 'update_time', prefix = 'AND'): returnOptions => {
+  let sql = ''
+  let data: any[] = []
+  startTime = formatDate(startTime)
+  if (startTime) {
+    sql += ` \`${startTime}\` < ${sqlTime} `
+    data.push(startTime)
+  }
+  endTime = formatDate(endTime)
+  if (endTime) {
+    if (!sql) sql += ` \`${endTime}\` < ${sqlTime} `
+    else sql += ` AND \`${endTime}\` > ${sqlTime} `
+    data.push(endTime)
+  }
+  if (sql) sql = ` ${prefix} ${sql} `
   return { sql, data }
 }
 

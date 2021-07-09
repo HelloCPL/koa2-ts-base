@@ -9,7 +9,7 @@ import Koa from 'koa'
 import { query, execTrans } from '../../db'
 import { getUuId, getCurrentTime } from '../../utils/tools'
 import { getTerminalCode, _getUserId } from '../../utils/users'
-import { updateSet, selectWhere, selectWhereKeyword } from '../../utils/handle-mysql'
+import { updateSet, selectWhere, selectWhereKeyword, selectWhereByTime } from '../../utils/handle-mysql'
 import { _getUserInfo } from '../../utils/users'
 import { handleArticleField } from './convert'
 import { doBlogCommentDeleteByArticle } from '../blog-interact/convert'
@@ -25,8 +25,8 @@ export async function doBlogAdd(ctx: Koa.Context, next?: any) {
   let isTop = body.isTop || '0'
   let isHot = body.isHot || '0'
   let currentTime = getCurrentTime()
-  let sql = `INSERT blog_article (id, title, content, cover_img, classify, tag, type, attachment, create_user, is_login, is_secret, is_draft, is_top, is_hot, source, create_time, update_time, remarks) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?)`
-  let data = [getUuId(), body.title, body.content, body.coverImg, body.classify, body.tag, body.type, body.attachment, _getUserId(ctx), isLogin, isSecret, isDraft, isTop, isHot, source, currentTime, currentTime, body.remarks]
+  let sql = `INSERT blog_article (id, title, content, content_type, cover_img, classify, tag, type, attachment, create_user, is_login, is_secret, is_draft, is_top, is_hot, source, create_time, update_time, remarks) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+  let data = [getUuId(), body.title, body.content, body.contentType, body.coverImg, body.classify, body.tag, body.type, body.attachment, _getUserId(ctx), isLogin, isSecret, isDraft, isTop, isHot, source, currentTime, currentTime, body.remarks]
   const res: any = await query(sql, data)
   if (res && res['affectedRows'])
     throw new global.Success()
@@ -42,7 +42,7 @@ export async function doBlogEdit(ctx: Koa.Context, next?: any) {
   let updateTime = getCurrentTime()
   body.updateTime = updateTime
   let sqlParams = updateSet({
-    valid: ['title', 'content', 'cover_img', 'classify', 'tag', 'type', 'attachment', 'is_login', 'is_secret', 'is_draft', 'is_top', 'is_hot', 'remarks', 'update_time'],
+    valid: ['title', 'content', 'content_type', 'cover_img', 'classify', 'tag', 'type', 'attachment', 'is_login', 'is_secret', 'is_draft', 'is_top', 'is_hot', 'remarks', 'update_time'],
     data: body,
   })
   // 可设置权限
@@ -90,6 +90,8 @@ export async function doBlogListSelf(ctx: Koa.Context, next?: any) {
     valid: ['type', 'is_secret', 'is_draft', 'is_top', 'is_hot'],
     data: queryData,
   })
+  // 时间区域
+  let timeParams = selectWhereByTime(queryData.startTime, queryData.endTime)
   // keyword 模糊搜索
   let keywordParams = selectWhereKeyword({
     valid: ['title', 'content'],
@@ -100,13 +102,15 @@ export async function doBlogListSelf(ctx: Koa.Context, next?: any) {
   queryData.pageSize = queryData.pageSize * 1 || 10
   let pageNo = (queryData.pageNo - 1) * queryData.pageSize
   const userInfo: any = await _getUserInfo(ctx)
-  const whereSql = `WHERE (create_user = ? OR create_user = ?) ${sqlParams.sql ? 'AND ' + sqlParams.sql : ''} ${keywordParams.sql ? 'AND ' + keywordParams.sql : ''}`
+
+  const whereSql = `WHERE (create_user = ? OR create_user = ?) ${sqlParams.sql} ${timeParams.sql} ${keywordParams.sql}`
+  const whereData = [userInfo.id, userInfo.openid, ...sqlParams.data, ...timeParams.sql, ...keywordParams.data]
+  
   let sql1 = `SELECT COUNT(id) as total FROM blog_article ${whereSql}`
-  let data1 = [userInfo.id, userInfo.openid, ...sqlParams.data, ...keywordParams.data]
   let sql2 = `SELECT * FROM blog_article ${whereSql} ORDER BY update_time DESC, create_time DESC LIMIT ?, ?`
-  let data2 = [...data1, pageNo, queryData.pageSize]
+  let data2 = [...whereData, pageNo, queryData.pageSize]
   let queryParams = [
-    { sql: sql1, data: data1 },
+    { sql: sql1, data: whereData },
     { sql: sql2, data: data2 }
   ]
   const res: any = await execTrans(queryParams)

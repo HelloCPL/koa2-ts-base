@@ -65,6 +65,7 @@
 | id | v64 | 是 | 文章 id |
 | title | text | 否 | 文章标题 |
 | content | text | 是 | 文章内容 |
+| contentType | v4 | 是 | 文章类型 0 普通文本 1 富文本 2 markdown 默认 0 |
 | cover_img | v255 | 否 | 文章封面图，图片id，多个图片用逗号隔开，最多3张 |
 | classify | v255 | 否 | 自定义分类，多个分类用逗号隔开 |
 | tag | v255 | 否 | 自定义标签，多个标签用逗号隔开 |

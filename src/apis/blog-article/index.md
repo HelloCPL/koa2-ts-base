@@ -13,7 +13,8 @@
 | 参数名 | 类型 | 是否必填 | 说明 |
 |:---:|:---:|:---:|:---:|
 | title | string | 否 | 文章标题 |
-| content | string | 是 | 文章标题 |
+| content | string | 是 | 文章内容 |
+| contentType | string | 是 | 文章内容类型 0 普通文本 1 富文本 2 markdown 默认 0 |
 | coverImg | string | 否 | 文章封面图，图片id，多个图片用逗号隔开，最多3张 |
 | classify | string | 否 | 自定义分类，多个分类用逗号隔开 |
 | tag | string | 否 | 自定义标签，多个标签用逗号隔开 |
@@ -53,7 +54,8 @@
 |:---:|:---:|:---:|:---:|
 | id | string | 是 | 文章id |
 | title | string | 否 | 文章标题 |
-| content | string | 否 | 文章标题 |
+| content | string | 否 | 文章内容 |
+| contentType | string | 是 | 文章内容类型 0 普通文本 1 富文本 2 markdown 默认 0 |
 | coverImg | string | 否 | 文章封面图，图片id，多个图片用逗号隔开，最多3张 |
 | classify | string | 否 | 自定义分类，多个分类用逗号隔开 |
 | tag | string | 否 | 自定义标签，多个标签用逗号隔开 |
@@ -130,11 +132,12 @@
       "id": "bca78715-e15f-4c18-92d2-2b4a31e3ebc6",
       "title": "测试标题",
       "content": "测试内容，很多很多很多内容",
-      "coverImg": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
+      "contentType": "1",
+      "coverImg": [],
       "classify": "大前端",
       "tag": "vue,js,html",
       "type": "1",
-      "attachment": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
+      "attachment": [],
       "createUser": "29d0ecfe-c888-4b76-b95a-349fe81ae4d1",
       "isLogin": "0",
       "isSecret": "1",
@@ -179,6 +182,9 @@
 | isDraft | string | 否 | 是否为草稿 1 是 0 不是 默认获取非草稿的文章列表，两者选其一 |
 | isTop | string | 否 | 是否为置顶 1 是 0 不是 |
 | isHot | string | 否 | 是否为热门文章 1 是 0 不是 |
+| startTime | string | 否 | 开始时间 |
+| endTime | string | 否 | 结束时间 |
+
 
 #### 返回示例
 
@@ -191,11 +197,12 @@
         "id": "bca78715-e15f-4c18-92d2-2b4a31e3ebc6",
         "title": "测试标题",
         "content": "测试内容，很多很多很多内容",
-        "coverImg": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
+        "contentType": "1",
+        "coverImg": [],
         "classify": "大前端",
         "tag": "vue,js,html",
         "type": "1",
-        "attachment": "6fbc2c29-80ee-4597-bb53-4419d2a5c2df",
+        "attachment": [],
         "createUser": "29d0ecfe-c888-4b76-b95a-349fe81ae4d1",
         "isLogin": "0",
         "isSecret": "1",
